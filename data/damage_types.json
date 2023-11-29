@@ -1,0 +1,15 @@
+{
+  "acid": "The caustic spray of a black dragon’s breath and the corrosive touch of an ooze deal acid damage.",
+  "bludgeoning": "Blunt-force trauma, punches, hammer blows, and being crushed in a giant’s grip, deal bludgeoning damage.",
+  "cold": "The numbing chill from a ray of frost and the frigid blast of a white dragon’s breath deal cold damage.",
+  "fire": "A hot stove, a burning building, a conjured flame, and the inferno of a red dragon’s breath all deal fire damage.",
+  "force": "Pure magical energy focused to strike at the enemy, force damage is supernatural and dealt mostly by spells (including magic missile and spiritual weapon).",
+  "lightning": "The spark from a faulty gnomish gadget, a bolt of electricity striking from a storm, and a blue dragon’s breath deal lightning damage.",
+  "necrotic": "The touch of a ghost withers flesh and wounds the soul. Necrotic damage is dealt by necromantic magic and the void of undeath.",
+  "piercing": "Attacks that puncture and impale—arrows, daggers, spears, and monstrous bites with sharp teeth—deal piercing damage.",
+  "poison": "Envenomed stings, bites and coated blades, toxic toadstools, and the noxious exhalations of a green dragon deal poison damage.",
+  "psychic": "Monsters with psionic powers and attacks on the mind itself by illusion or enchantment magic deal psychic damage.",
+  "radiant": "An angel’s smiting weapon or a divine guiding bolt deal radiant damage, burning flesh and searing the spirit with raw power.",
+  "slashing": "Cuts and swipes—whether from swords, axes, or monstrous talons—deal slashing damage.",
+  "thunder": "The resonant power of the storm and a concussive burst of sound, such as from the thunderwave spell, each deals thunder damage."
+}
