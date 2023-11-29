@@ -6,3 +6,4 @@ import sys
 import os
 
 DATA_DIRECTORY = 'data/'
+CONDITIONS = f'{DATA_DIRECTORY}/conditions.json'
