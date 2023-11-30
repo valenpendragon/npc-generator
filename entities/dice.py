@@ -53,6 +53,19 @@ class Dice:
         self.number_of_rolls_dropped = drop_number
         self.drop_lowest = highest
 
+    def __str__(self):
+        output = f"dice_size: {self.dice_size}\n" \
+                 f"roll_type: {self.roll_type}\n" \
+                 f"number_of_rolls: {self.number_of_rolls}\n" \
+                 f"number_of_rolls_dropped: {self.number_of_rolls_dropped}\n" \
+                 f"drop_lowest: {self.drop_lowest}"
+        return output
+
+    def __repr__(self):
+        output = f"Dice({self.dice_size}, roll_type={self.roll_type}, dice_number={self.number_of_rolls}," \
+                 f"highest={self.drop_lowest})"
+        return output
+
     def _roll_advantage(self):
         roll1 = randint(1, self.dice_size)
         roll2 = randint(1, self.dice_size)
@@ -90,9 +103,10 @@ class Dice:
         print(f"roll: rolls: {rolls}")
         if self.number_of_rolls_dropped > 0:
             if self.drop_lowest:
-                rolls_final = rolls[-1, -self.number_of_rolls_dropped]
+                rolls_final = rolls[self.number_of_rolls_dropped:]
             else:
-                rolls_final = rolls[0, self.number_of_rolls_dropped]
+                rolls_final = rolls[0: -self.number_of_rolls_dropped]
+            print(f"roll: rolls_final: {rolls_final}")
             return sum(rolls_final)
         else:
             return sum(rolls)
@@ -121,3 +135,11 @@ if __name__ == "__main__":
     print(f"main: Save with Advantage: {save_with_advantage.roll()}")
     save_with_disadvantage = Dice(20, roll_type="disadvantage")
     print(f"main: Save with Disadvantage: {save_with_disadvantage.roll()}")
+    stat_roll_4d6_drop_lowest = Dice(6, dice_number=4, drop_number=1)
+    print(f"main: Roll 4d6, drop lowest, and take sum: {stat_roll_4d6_drop_lowest.roll()}")
+    stat_roll_4d6_drop_highest = Dice(6, dice_number=4, drop_number=1, highest=False)
+    print(f"main: Roll 4d6, drop highest, and take sum: {stat_roll_4d6_drop_highest.roll()}")
+    roll_5d6_drop_lowest_2 = Dice(6, dice_number=5, drop_number=2, highest=True)
+    print(f"main: Roll 5d6, drop 2 lowest: {roll_5d6_drop_lowest_2.roll()}")
+    roll_5d6_drop_highest_2 = Dice(6, dice_number=5, drop_number=2, highest=False)
+    print(f"main: Roll 5d6, drop 2 lowest: {roll_5d6_drop_highest_2.roll()}")
