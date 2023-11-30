@@ -1,4 +1,4 @@
-import random
+from random import randint
 
 
 class Dice:
@@ -52,3 +52,72 @@ class Dice:
         self.number_of_rolls = dice_number
         self.number_of_rolls_dropped = drop_number
         self.drop_lowest = highest
+
+    def _roll_advantage(self):
+        roll1 = randint(1, self.dice_size)
+        roll2 = randint(1, self.dice_size)
+        print(f"roll_advantage: roll1: {roll1}. roll2: {roll2}")
+        if roll1 >= roll2:
+            return roll1
+        else:
+            return roll2
+
+    def _roll_disadvantage(self):
+        roll1 = randint(1, self.dice_size)
+        roll2 = randint(1, self.dice_size)
+        print(f"roll_disadvantage: roll1: {roll1}. roll2: {roll2}")
+        if roll1 <= roll2:
+            return roll1
+        else:
+            return roll2
+
+    def roll(self):
+        """This method implements the actual roll of the defined dice."""
+        rolls = []
+        print(f"roll: rolls: {rolls}")
+        for n in range(self.number_of_rolls):
+            match self.roll_type:
+                case "normal":
+                    roll = randint(1, self.dice_size)
+                case "advantage":
+                    roll = self._roll_advantage()
+                case "disadvantage":
+                    roll = self._roll_disadvantage()
+
+            rolls.append(roll)
+
+        rolls.sort()
+        print(f"roll: rolls: {rolls}")
+        if self.number_of_rolls_dropped > 0:
+            if self.drop_lowest:
+                rolls_final = rolls[-1, -self.number_of_rolls_dropped]
+            else:
+                rolls_final = rolls[0, self.number_of_rolls_dropped]
+            return sum(rolls_final)
+        else:
+            return sum(rolls)
+
+
+if __name__ == "__main__":
+    d6 = Dice(6)
+    d8 = Dice(8)
+    print(f"main: d6: {d6.roll()}.")
+    print(f"main: d8: {d8.roll()}.")
+    hit_dice_test8 = Dice(8, dice_number=12)
+    print(f"main: 12d8 HD Test: {hit_dice_test8.roll()}")
+    hit_dice_test_with_advantage8 = Dice(8, dice_number=12, roll_type="advantage")
+    print(f"main: 12d8 HD Test with Advantage on HD: {hit_dice_test_with_advantage8.roll()}")
+    hit_dice_test_with_disadvantage8 = Dice(8, dice_number=12, roll_type="disadvantage")
+    print(f"main: 12d8 HD Test with Disadvantage on HD: {hit_dice_test_with_disadvantage8.roll()}")
+    hit_dice_test10 = Dice(10, dice_number=12)
+    print(f"main: 12d10 HD Test: {hit_dice_test10.roll()}")
+    hit_dice_test_with_advantage10 = Dice(10, dice_number=12, roll_type="advantage")
+    print(f"main: 12d10 HD Test with Advantage on HD: {hit_dice_test_with_advantage10.roll()}")
+    hit_dice_test_with_disadvantage10 = Dice(10, dice_number=12, roll_type="disadvantage")
+    print(f"main: 12d10 HD Test with Disadvantage on HD: {hit_dice_test_with_disadvantage10.roll()}")
+    save = Dice(20)
+    print(f"main: Saving Throw: {save.roll()}")
+    save_with_advantage = Dice(20, roll_type="advantage")
+    print(f"main: Save with Advantage: {save_with_advantage.roll()}")
+    save_with_disadvantage = Dice(20, roll_type="disadvantage")
+    print(f"main: Save with Disadvantage: {save_with_disadvantage.roll()}")
