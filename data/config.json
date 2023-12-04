@@ -1,11 +1,29 @@
 {
-  "required tables": [
-    "Stat Bonuses"
-  ],
-  "required data files": [
-    "conditions.json", "damage_types.json"
-  ],
-  "optional data files": [
-    "highlighting.json"
-  ]
+  "tables": {
+    "required tables": [
+        "Stat Bonuses"
+      ]
+  },
+  "data files": {
+      "required data files": [
+        "conditions.json", "damage_types.json"
+      ],
+      "optional data files": [
+        "highlighting.json"
+      ]
+  },
+  "stats" : {
+    "initial limits": {
+      "max": 15, "min": 8
+    },
+    "humanoid limits": {
+      "max": 19, "min": 8
+    },
+    "standard ability array": [
+      15, 14, 13, 12, 10, 8
+    ],
+    "attribute points": {
+      "below average": 8, "average": 12, "above average": 18, "pc quality": 27, "extreme": 32
+    }
+  }
 }
