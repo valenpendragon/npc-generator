@@ -3,6 +3,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QLabel, QHBoxLayout)
 
 import sys
+import json
 import os
 
 DATA_DIRECTORY = 'data/'
@@ -24,6 +25,11 @@ class StartWindow(QMainWindow):
         self.highlighting_fp = highlighting_fp
         self.tables_fp = table_fp
         self.config_fp = config_file
+        self.conditions = None
+        self.damage_types = None
+        self.highlighting = None
+        self.tables = None
+        self.config = None
         self.hbox = None
         self.statusbar = None
         self.required_tables = None
@@ -35,8 +41,37 @@ class StartWindow(QMainWindow):
     def load_tables(self):
         pass
 
+    def check_config_file(self, filepath):
+        content = ""
+        try:
+            with open(filepath, "r") as f:
+                content = f.read()
+        except (FileNotFoundError, IOError):
+            error_msg = f"Configuration file, {filepath}, could not be" \
+                        f" read or does not exist."
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+
+        if content != "":
+            try:
+                json_content = json.loads(content)
+            except json.decoder.JSONDecodeError:
+                error_msg = f"Configuration file, {filepath}, is not a " \
+                            f"valid JSON file or may be corrupted."
+                QMessageBox.critical(self, "Fatal Error", error_msg)
+                self.exit_app()
+            else:
+                return json_content
+
     def load_config_files(self):
-        pass
+        self.config = self.check_config_file(self.config_fp)
+        print(f"load_config_files: config: {self.config}")
+        self.conditions = self.check_config_file(self.conditions_fp)
+        print(f"load_config_files: conditions: {self.conditions}")
+        self.damage_types = self.check_config_file(self.damage_types_fp)
+        print(f"load_config_files: damage_types: {self.damage_types}")
+        self.highlighting = self.check_config_file(self.highlighting_fp)
+        print(f"load_config_files: highlighting: {self.highlighting}")
 
     def init_ui(self):
         self.setWindowTitle("NPC Generator with Treasures")
@@ -59,7 +94,6 @@ class StartWindow(QMainWindow):
     def start_treasure_window(self):
         status_msg = "Treasure Window Open"
         self.statusbar.showMessage("Opening Treasure Generation Window")
-
 
     def exit_app(self):
         sys.exit()
