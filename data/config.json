@@ -1,0 +1,11 @@
+{
+  "required tables": [
+    "Stat Bonuses"
+  ],
+  "required data files": [
+    "conditions.json", "damage_types.json"
+  ],
+  "optional data files": [
+    "highlighting.json"
+  ]
+}
