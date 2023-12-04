@@ -8,3 +8,4 @@ import os
 DATA_DIRECTORY = 'data/'
 CONDITIONS = f'{DATA_DIRECTORY}/conditions.json'
 DAMAGE_TYPES = f'{DATA_DIRECTORY}/damage_types.json'
+HIGHLIGHTING = f'{DATA_DIRECTORY}/highlighting.json'
