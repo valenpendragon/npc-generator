@@ -79,6 +79,17 @@ class StartWindow(QMainWindow):
         except KeyError:
             status_msg = "No optional tables defined in config file."
             self.statusbar.showMessage(status_msg)
+        else:
+            for table_name in optional_table_list:
+                try:
+                    table = pd.read_excel(self.tables_fp, sheet_name=table_name,
+                                          index_col=None, na_values=False)
+                except ValueError:
+                    msg = f"Optional table, {table_name}, was not found in " \
+                          f"{self.tables_fp}. Skipping it"
+                    self.statusbar.showMessage(msg)
+                else:
+                    self.tables[table_name] = table
 
         print(f"load_tables: tables: {self.tables}")
 
