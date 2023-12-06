@@ -5,6 +5,8 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
 import sys
 import json
 import os
+import pandas as pd
+import openpyxl
 
 DATA_DIRECTORY = 'data/'
 CONDITIONS = f'{DATA_DIRECTORY}/conditions.json'
@@ -31,15 +33,54 @@ class StartWindow(QMainWindow):
         self.tables = None
         self.config = None
         self.hbox = None
-        self.statusbar = None
         self.required_tables = None
+
+        # Create statusbar.
+        self.statusbar = QStatusBar()
+        self.setStatusBar(self.statusbar)
+
+        # Setting up the attributes for additional windows.
         self.treasure_window = None
+
+        # Starting up the UI.
         self.load_config_files()
         self.load_tables()
         self.init_ui()
 
     def load_tables(self):
-        pass
+        self.tables = {}
+        try:
+            required_table_list = self.config["tables"]['required tables']
+        except KeyError:
+            error_msg = f"Config file, {self.config_fp} is missing required" \
+                        f"tables list or is corrupt."
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+        else:
+            for table_name in required_table_list:
+                try:
+                    table = pd.read_excel(self.tables_fp, sheet_name=table_name,
+                                          index_col=None, na_values=False)
+                except ValueError:
+                    error_msg = f"Either {table_name} is not in tables files, " \
+                                f"{self.tables_fp}, or tables files is corrupt."
+                    QMessageBox.critical(self, "Fatal Error", error_msg)
+                    self.exit_app()
+                except FileNotFoundError:
+                    error_msg = f"Tables files, {self.tables_fp} was not found."
+                    QMessageBox.critical(self, "Fatal Error", error_msg)
+                    self.exit_app()
+                else:
+                    self.tables[table_name] = table
+        # This is simply a check for optional tables. If this is not present
+        # in config.json, this program will ignore it.
+        try:
+            optional_table_list = self.config['tables']['optional tables']
+        except KeyError:
+            status_msg = "No optional tables defined in config file."
+            self.statusbar.showMessage(status_msg)
+
+        print(f"load_tables: tables: {self.tables}")
 
     def check_config_file(self, filepath):
         content = ""
@@ -87,12 +128,7 @@ class StartWindow(QMainWindow):
         self.hbox.addWidget(treasure_generator_button)
         self.hbox.addWidget(exit_button)
 
-        # Create statusbar.
-        self.statusbar = QStatusBar()
-        self.setStatusBar(self.statusbar)
-
     def start_treasure_window(self):
-        status_msg = "Treasure Window Open"
         self.statusbar.showMessage("Opening Treasure Generation Window")
 
     def exit_app(self):
