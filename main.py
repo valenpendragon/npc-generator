@@ -2,6 +2,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QMessageBox, QApplication, QMainWindow, QStatusBar,
                                QLabel, QHBoxLayout)
 
+from classes import TreasureWindow
 import sys
 import json
 import os
@@ -141,6 +142,8 @@ class StartWindow(QMainWindow):
 
     def start_treasure_window(self):
         self.statusbar.showMessage("Opening Treasure Generation Window")
+        self.treasure_window = TreasureWindow()
+        self.treasure_window.show()
 
     def exit_app(self):
         sys.exit()
