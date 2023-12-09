@@ -24,7 +24,7 @@ class TreasureWindow(QWidget):
         self.highlighting = highlighting
 
         # Set minimum values for new attributes.
-        self.encounter_challenge_rating = 1
+        self.encounter_challenge_rating = 0
         self.elite_creature = False
         self.legendary_creature = False
 
