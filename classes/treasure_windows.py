@@ -8,5 +8,6 @@ import pandas as pd
 import openpyxl
 
 
-class TreasureWindow(QMainWindow):
+class TreasureWindow(QWidget):
     pass
+
