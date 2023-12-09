@@ -142,7 +142,8 @@ class StartWindow(QMainWindow):
 
     def start_treasure_window(self):
         self.statusbar.showMessage("Opening Treasure Generation Window")
-        self.treasure_window = TreasureWindow()
+        self.treasure_window = TreasureWindow(self.config, self.conditions,
+                                              self.damage_types, self.highlighting)
         self.treasure_window.show()
 
     def exit_app(self):
