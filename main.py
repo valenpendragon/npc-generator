@@ -9,7 +9,7 @@ import os
 import pandas as pd
 import openpyxl
 
-DATA_DIRECTORY = 'data/'
+DATA_DIRECTORY = 'my_data/'
 CONDITIONS = f'{DATA_DIRECTORY}/conditions.json'
 DAMAGE_TYPES = f'{DATA_DIRECTORY}/damage_types.json'
 HIGHLIGHTING = f'{DATA_DIRECTORY}/highlighting.json'
