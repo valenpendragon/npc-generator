@@ -10,8 +10,8 @@ def roll_test(s):
     (m, n). If none of these conditions are true, it
     returns the tuple (False,).
     :param s:  str (can be int or float)
-    :return:  n-tuple of integer, where n is 1 or 2, or
-              1-tuple False bool
+    :return:  n-tuple of int, where n is 1 or 2, or 1-tuple
+              (False,)
     """
     # For the case that s is actually an integer, return it.
     # For a float, return int(s). For a bool, raise an error.
@@ -68,4 +68,4 @@ if __name__ == "__main__":
     # Set test strings.
     l = ['blank', '10', '11-13', '12-10', '', 12, 12.4, '1-2-3' ]
     for item in l:
-        print(f"Test resuls for {item} is {roll_test(item)}")
+        print(f"Test results for {item} is {roll_test(item)}")
