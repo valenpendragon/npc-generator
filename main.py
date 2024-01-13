@@ -119,6 +119,8 @@ class StartWindow(QMainWindow):
                 self.tables[wb_name][ws_name] = df.replace(to_replace=np.nan,
                                                            value=None)
             f.close()
+        # TODO: Use check_worksheet to make sure rolls in table headers
+        #  have no gaps or overlaps.
         print(f"load_tables: tables: {self.tables}")
         print(f"load_tables: Completed StartWindow.load_tables().")
 
