@@ -11,7 +11,8 @@ import openpyxl
 class TreasureWindow(QWidget):
     def __init__(self, config: dict, conditions: dict,
                  damage_types: dict, highlighting: dict,
-                 parent=None):
+                 tables: dict, parent=None):
+        print(f"treasure_windows: Starting TreasureWindow.__init__().")
         super().__init__(parent)
         self.setMinimumSize(800, 600)
         self.setWindowTitle("Treasure Generation Window")
@@ -27,5 +28,6 @@ class TreasureWindow(QWidget):
         self.encounter_challenge_rating = 0
         self.elite_creature = False
         self.legendary_creature = False
+        print(f"treasure_windows: Completed TreasureWindow.__init__().")
 
 

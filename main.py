@@ -3,31 +3,34 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QLabel, QHBoxLayout)
 
 from classes import TreasureWindow
+from functions import find_workbooks, check_workbook
 import sys
 import json
 import os
 import pandas as pd
+import numpy as np
 import openpyxl
 
-DATA_DIRECTORY = 'my_data/'
+DATA_DIRECTORY = 'my_data'
 CONDITIONS = f'{DATA_DIRECTORY}/conditions.json'
 DAMAGE_TYPES = f'{DATA_DIRECTORY}/damage_types.json'
 HIGHLIGHTING = f'{DATA_DIRECTORY}/highlighting.json'
-TABLES = f'{DATA_DIRECTORY}/tables.xlsx'
 CONFIG_FILE = f'{DATA_DIRECTORY}/config.json'
 
 
 class StartWindow(QMainWindow):
     def __init__(self, conditions_fp=CONDITIONS, damage_types_fp=DAMAGE_TYPES,
-                 highlighting_fp=HIGHLIGHTING, table_fp=TABLES, config_file=CONFIG_FILE):
+                 highlighting_fp=HIGHLIGHTING, config_file=CONFIG_FILE):
+        print(f"main: Starting StartWindow.__init__().")
         super().__init__()
         # Initialize to None any attributes handled by other methods,
         # such as init_ui, load_tables, load_config_files.
         self.conditions_fp = conditions_fp
         self.damage_types_fp = damage_types_fp
         self.highlighting_fp = highlighting_fp
-        self.tables_fp = table_fp
         self.config_fp = config_file
+        self.workbook_fps = []
+        self.workbook_names = []
         self.conditions = None
         self.damage_types = None
         self.highlighting = None
@@ -47,54 +50,80 @@ class StartWindow(QMainWindow):
         self.load_config_files()
         self.load_tables()
         self.init_ui()
+        print(f"init: Init process completed.")
 
     def load_tables(self):
+        print(f"load_tables: Starting StartWindow.load_tables().")
         self.tables = {}
-        try:
-            required_table_list = self.config["tables"]['required tables']
-        except KeyError:
-            error_msg = f"Config file, {self.config_fp} is missing required" \
-                        f"tables list or is corrupt."
+        print(f"load_tables: StartWindow.workbook_fps: {self.workbook_fps}.")
+        print(f"load_tables: StartWindow.workbook_names: {self.workbook_names}.")
+        workbook_checks = find_workbooks(self.workbook_fps)
+        if workbook_checks['missing'] is not None:
+            missing_txt = ', '.join(str(e) for e in workbook_checks['missing'])
+            error_msg = f"Required workbooks; {missing_txt}; could not be found."
             QMessageBox.critical(self, "Fatal Error", error_msg)
             self.exit_app()
-        else:
-            for table_name in required_table_list:
-                try:
-                    table = pd.read_excel(self.tables_fp, sheet_name=table_name,
-                                          index_col=None, na_values=False)
-                except ValueError:
-                    error_msg = f"Either {table_name} is not in tables files, " \
-                                f"{self.tables_fp}, or tables files is corrupt."
-                    QMessageBox.critical(self, "Fatal Error", error_msg)
-                    self.exit_app()
-                except FileNotFoundError:
-                    error_msg = f"Tables files, {self.tables_fp} was not found."
-                    QMessageBox.critical(self, "Fatal Error", error_msg)
-                    self.exit_app()
-                else:
-                    self.tables[table_name] = table
-        # This is simply a check for optional tables. If this is not present
-        # in config.json, this program will ignore it.
-        try:
-            optional_table_list = self.config['tables']['optional tables']
-        except KeyError:
-            status_msg = "No optional tables defined in config file."
-            self.statusbar.showMessage(status_msg)
-        else:
-            for table_name in optional_table_list:
-                try:
-                    table = pd.read_excel(self.tables_fp, sheet_name=table_name,
-                                          index_col=None, na_values=False)
-                except ValueError:
-                    msg = f"Optional table, {table_name}, was not found in " \
-                          f"{self.tables_fp}. Skipping it"
-                    self.statusbar.showMessage(msg)
-                else:
-                    self.tables[table_name] = table
+        if workbook_checks['corrupt'] is not None:
+            corrupt_txt = ', '.join(str(e) for e in workbook_checks['corrupt'])
+            error_msg = f"Required workbooks; {corrupt_txt}; could not be opened."
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
 
+        # Now, we have to tabulate all errors found in the workbooks, such
+        # as missing or corrupt worksheets. Extra worksheets will be ignored.
+        # The reason is that I often have "Blank" worksheets to make easier on
+        # eyes, non-printable "dark theme" worksheets.
+        missing_worksheets = {}
+        corrupt_worksheets = {}
+        print(f"load_tables: missing_worksheets: {missing_worksheets}. "
+              f"corrupt_worksheets: {corrupt_worksheets}.")
+        print(f"load_tables: StartWindow.config: {self.config}.")
+        for idx, wb_name in enumerate(self.workbook_names):
+            wb_fp = self.workbook_fps[idx]
+            ws_list = self.config['tables']['required tables'][wb_name]
+            worksheet_checks = check_workbook(wb_fp, ws_list)
+            if worksheet_checks['missing'] is not None:
+                missing_worksheets[wb_fp] = worksheet_checks['missing']
+            if worksheet_checks['corrupt'] is not None:
+                corrupt_worksheets[wb_fp] = worksheet_checks['corrupt']
+        if missing_worksheets != {} or corrupt_worksheets != {}:
+            missing_txt = ""
+            corrupt_txt = ""
+            error_msg = ""
+            if missing_worksheets != {}:
+                for wb_fp in missing_worksheets.keys():
+                    ws_list = ' '.join(str(e) for e in missing_worksheets[wb_fp])
+                    missing_txt = f"For workbook, {wb_fp}, {ws_list}. {missing_txt}"
+                error_msg = f"Missing required worksheets, listed by workbook: " \
+                            f"{missing_txt}."
+
+            if corrupt_worksheets != {}:
+                for wb_fp in corrupt_worksheets.keys():
+                    ws_list = ' '.join(str(e) for e in corrupt_worksheets[wb_fp])
+                    corrupt_txt = f"For workbook, {wb_fp}, {ws_list}. {corrupt_txt}"
+                error_msg = f"Corrupt required worksheets, listed by workbook: " \
+                            f"{corrupt_txt}. {error_msg}"
+
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+        # Now, after checking everything thoroughly, we can load the worksheets
+        # into tables.
+        for idx, wb_name in enumerate(self.workbook_names):
+            self.tables[wb_name] = {}
+            wb_fp = self.workbook_fps[idx]
+            ws_list = self.config['tables']['required tables'][wb_name]
+            f = pd.ExcelFile(wb_fp)
+            for ws_name in ws_list:
+                df = pd.read_excel(wb_fp, sheet_name=ws_name, index_col=0,
+                                   na_values=True)
+                self.tables[wb_name][ws_name] = df.replace(to_replace=np.nan,
+                                                           value=None)
+            f.close()
         print(f"load_tables: tables: {self.tables}")
+        print(f"load_tables: Completed StartWindow.load_tables().")
 
     def check_config_file(self, filepath):
+        print(f"check_config_file: Starting StartWindow.check_config_file().")
         content = ""
         try:
             with open(filepath, "r") as f:
@@ -115,8 +144,10 @@ class StartWindow(QMainWindow):
                 self.exit_app()
             else:
                 return json_content
+        print(f"check_config_file: Completed StartWindow.check_config_file().")
 
     def load_config_files(self):
+        print(f"load_config_files: Starting StartWindow.load_config_files().")
         self.config = self.check_config_file(self.config_fp)
         print(f"load_config_files: config: {self.config}")
         self.conditions = self.check_config_file(self.conditions_fp)
@@ -125,8 +156,31 @@ class StartWindow(QMainWindow):
         print(f"load_config_files: damage_types: {self.damage_types}")
         self.highlighting = self.check_config_file(self.highlighting_fp)
         print(f"load_config_files: highlighting: {self.highlighting}")
+        # Check config.json to see if it has required tables and workbook dictionary.
+        print(f"load_config_files: Checking configuration file.")
+        try:
+            required_fp_dict = self.config["tables"]['required tables']
+        except KeyError:
+            error_msg = f"Config file, {self.config_fp} is missing " \
+                        f"section for required tables."
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+        else:
+            try:
+                dir_fp = DATA_DIRECTORY
+                self.workbook_fps = [f"{dir_fp}/{wb_name}" for wb_name in
+                                     required_fp_dict.keys()]
+                self.workbook_names = [wb_name for wb_name in required_fp_dict.keys()]
+            except AttributeError:
+                error_msg = f"Config file, {self.config_fp} is missing required" \
+                            f"dictionary of workbooks."
+                QMessageBox.critical(self, "Fatal Error", error_msg)
+                self.exit_app()
+        print(f"load_config_files: Configuration file passed checks.")
+        print(f"load_config_files: Completed StartWindow.load_config_files().")
 
     def init_ui(self):
+        print(f"init_ui: Starting StartWindow.init_ui().")
         self.setWindowTitle("NPC Generator with Treasures")
         self.setMinimumSize(400, 300)
 
@@ -139,12 +193,16 @@ class StartWindow(QMainWindow):
         self.centralWidget().setLayout(self.hbox)
         self.hbox.addWidget(treasure_generator_button)
         self.hbox.addWidget(exit_button)
+        print(f"init_ui: Completed StartWindow.init_ui().")
 
     def start_treasure_window(self):
+        print(f"start_treasure_window: Starting StartWindow.start_treasure_window().")
         self.statusbar.showMessage("Opening Treasure Generation Window")
         self.treasure_window = TreasureWindow(self.config, self.conditions,
-                                              self.damage_types, self.highlighting)
+                                              self.damage_types, self.highlighting,
+                                              self.tables)
         self.treasure_window.show()
+        print(f"start_treasure_window: Completed StartWindow.start_treasure_window().")
 
     def exit_app(self):
         sys.exit()
