@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QLabel, QHBoxLayout)
 
 from classes import TreasureWindow
-from functions import find_workbooks, check_workbook
+from functions import (find_workbooks, check_workbook, check_worksheet)
 import sys
 import json
 import os
@@ -119,10 +119,49 @@ class StartWindow(QMainWindow):
                 self.tables[wb_name][ws_name] = df.replace(to_replace=np.nan,
                                                            value=None)
             f.close()
+        print(f"load_tables: tables: {self.tables}")
         # TODO: Use check_worksheet to make sure rolls in table headers
         #  have no gaps or overlaps.
-        print(f"load_tables: tables: {self.tables}")
-        print(f"load_tables: Completed StartWindow.load_tables().")
+        # Beginning table validation.
+        print(f"load_tables: Beginning table validation.")
+        bad_worksheets = {}
+        errors = 0
+        for wb_name in self.tables.keys():
+            print(f"load_tables: Starting validation of {wb_name} tables.")
+            # The structure of character-related tables differs from the rest.
+            # There is an override feature in check_worksheet that handles it.
+            stat_override = 'character' in wb_name.lower()
+            bad_worksheets[wb_name] = None
+            bad_ws_list = []
+            for ws_name in self.tables[wb_name].keys():
+                if check_worksheet(self.tables[wb_name][ws_name], stat_override):
+                    print(f"load_tables: Validated worksheet, {ws_name}.")
+                else:
+                    bad_ws_list.append(ws_name)
+                    errors += 1
+                    print(f"load_tables: Worksheet, {ws_name}, has invalid formatting.")
+
+            if len(bad_ws_list) != 0:
+                bad_worksheets[wb_name] = bad_ws_list
+                print(f"load_tables: bad_worksheets: {bad_worksheets}")
+            else:
+                print(f"load_tables: Workbook, {wb_name}, has been fully validated.")
+
+        if errors != 0:
+            error_msg = ""
+            invalid_txt = ""
+            for wb_name in bad_worksheets.keys():
+                if bad_worksheets[wb_name] is not None:
+                    ws_list = ', '.join(str(e) for e in bad_worksheets[wb_name])
+                    invalid_txt = f"For workbook, {wb_name}, these worksheets have an "\
+                                  f"invalid format: {ws_list}. {invalid_txt}"
+            error_msg = f"Invalid formatting of worksheets found, listed by workbook: "\
+                        f"{invalid_txt}"
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+        else:
+            print(f"load_tables: All worksheets are valid and ready to use.")
+            print(f"load_tables: Completed StartWindow.load_tables().")
 
     def check_config_file(self, filepath):
         print(f"check_config_file: Starting StartWindow.check_config_file().")

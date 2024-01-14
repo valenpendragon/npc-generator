@@ -159,7 +159,7 @@ def find_workbooks(wb_fp_list):
     return data
 
 
-def check_worksheet(table: pd.read_table) -> bool:
+def check_worksheet(table, stat_values=False) -> bool:
     """
     This function analyzes the table supplied to it. There may be index
     columns which will be ignored. The focus is on roll columns and
@@ -175,29 +175,40 @@ def check_worksheet(table: pd.read_table) -> bool:
     otherwise. There can be no duplication of values from row to row, no
     overlaps, and no gaps. Otherwise, the table is not usable.
 
+    stat_values is used to override the usual behavior of the function.
+    Stat tables have a stat value from 1 to 30 and either a bonus/penalty
+    value in the second column or a description.
+
     This function returns a bool, True if the worksheet is usable, False
     otherwise.
     :param table: pd.DataFrame
+    :param stat_values: bool, defaults to False, used to override the
+        usual behavior and treat the first column as a d30 stat, running
+        from 1 to 30
     :return: bool
     """
     headers = table.columns
     # Find the roll column first. All unnamed columns will be ignored.
     # The order of the possible values ensures the largest match will
     # be the first one found.
-    possible_roll_values = ('d1000', 'd100', 'd30', 'd20',
-                            'd12', 'd10', 'd8', 'd6',
-                            'd4', 'd2')
-    roll_header = None
-    roll_type = None
-    for h in headers:
-        for v in possible_roll_values:
-            if v in h.lower().strip():
-                roll_type = v
-                roll_header = h
-                break
+    if stat_values:
+        roll_header = 'Stat Value'
+        roll_type = 'd30'
+    else:
+        possible_roll_values = ('d1000', 'd100', 'd30', 'd20',
+                                'd12', 'd10', 'd8', 'd6',
+                                'd4', 'd2')
+        roll_header = None
+        roll_type = None
+        for h in headers:
+            for v in possible_roll_values:
+                if v in h.lower().strip():
+                    roll_type = v
+                    roll_header = h
+                    break
     if roll_header is None:
         # There is no roll column that matches the criteria.
-        print("check_worksheet: No roll column founds Table is an invalid format.")
+        print("check_worksheet: No roll column found. Table is an invalid format.")
         return False
     else:
         roll_column = table[roll_header]
