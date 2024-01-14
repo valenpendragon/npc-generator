@@ -236,16 +236,12 @@ def check_worksheet(table: pd.read_table) -> bool:
         return True
 
 
-# TODO: Create check_worksheet to verify that the numbering in the table
-#  is consistent with the column header of the table and has no gaps or
-#  overlaps in the numbering.
 if __name__ == "__main__":
     # Set test strings.
     l = ['blank', '10', '11-13', '12-10', '', 12, 12.4, '1-2-3' ]
     for item in l:
         print(f"Test results for {item} is {roll_test(item)}")
-    # TODO: Add tests for check_workbook and find_workbooks using
-    #  sample files included in data directory.
+
     wb_fp = '../data/test_workbook.xlsx'
     ws_list = ['Treasure For CR 0 Magic', 'Treasure For CRs 1-2 Coin',
                'Treasure For CRs 1-2 Magic', 'Treasure For CRs 3-4 Coin',
