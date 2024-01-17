@@ -120,8 +120,7 @@ class StartWindow(QMainWindow):
                                                            value=None)
             f.close()
         print(f"load_tables: tables: {self.tables}")
-        # TODO: Use check_worksheet to make sure rolls in table headers
-        #  have no gaps or overlaps.
+
         # Beginning table validation.
         print(f"load_tables: Beginning table validation.")
         bad_worksheets = {}
