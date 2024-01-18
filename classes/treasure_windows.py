@@ -1,3 +1,5 @@
+import sys
+
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QMessageBox, QApplication, QMainWindow, QStatusBar,
                                QLabel, QHBoxLayout, QGridLayout)
@@ -12,7 +14,7 @@ class TreasureWindow(QMainWindow):
     def __init__(self, config: dict, conditions: dict,
                  damage_types: dict, highlighting: dict,
                  tables: dict, parent=None):
-        print(f"treasure_windows: Starting TreasureWindow.__init__().")
+        print(f"TreasureWindow: Starting TreasureWindow.__init__().")
         super().__init__(parent)
 
         # Set attributes pushed from calling window.
@@ -37,7 +39,7 @@ class TreasureWindow(QMainWindow):
 
         # Run init_ui.
         self.init_ui()
-        print(f"treasure_windows: Completed TreasureWindow.__init__().")
+        print(f"treasure_window: Completed TreasureWindow.__init__().")
 
     def init_ui(self):
         self.setMinimumSize(800, 600)
@@ -45,13 +47,21 @@ class TreasureWindow(QMainWindow):
 
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.close)
+        exit_button = QPushButton("Exit")
+        exit_button.clicked.connect(self.exit_app)
 
         self.setCentralWidget(QWidget(self))
         self.grid = QGridLayout()
         self.centralWidget().setLayout(self.grid)
-        self.grid.addWidget(close_button)
 
-        print(f"TW.init_ui: Completed TreasureWindows.init_ui().")
+        # Add Close button and Exit button to statusBar
+        self.statusbar.addWidget(close_button)
+        self.statusbar.addWidget(exit_button)
+
+        print(f"TW.init_ui: Completed TreasureWindow.init_ui().")
+
+    def exit_app(self):
+        sys.exit()
 
 
 
