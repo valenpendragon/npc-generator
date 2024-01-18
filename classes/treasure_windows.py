@@ -33,6 +33,7 @@ class TreasureWindow(QMainWindow):
         # Setup statusbar.
         self.statusbar = QStatusBar()
         self.setStatusBar(self.statusbar)
+        self.status_msg = None
 
         # Initialize the grig.
         self.grid = None
@@ -49,6 +50,8 @@ class TreasureWindow(QMainWindow):
         close_button.clicked.connect(self.close)
         exit_button = QPushButton("Exit")
         exit_button.clicked.connect(self.exit_app)
+        self.status_msg = QLabel()
+
 
         self.setCentralWidget(QWidget(self))
         self.grid = QGridLayout()
@@ -57,6 +60,9 @@ class TreasureWindow(QMainWindow):
         # Add Close button and Exit button to statusBar
         self.statusbar.addWidget(close_button)
         self.statusbar.addWidget(exit_button)
+        self.statusbar.addWidget(self.status_msg)
+        update_txt = f"Treasure Generator is ready to use."
+        self.status_msg.setText(update_txt)
 
         print(f"TW.init_ui: Completed TreasureWindow.init_ui().")
 
