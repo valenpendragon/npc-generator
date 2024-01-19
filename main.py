@@ -47,12 +47,14 @@ class StartWindow(QMainWindow):
         self.treasure_window = None
 
         # Starting up the UI.
+        self.init_ui()
         self.load_config_files()
         self.load_tables()
-        self.init_ui()
         print(f"init: Init process completed.")
 
     def load_tables(self):
+        self.statusbar.showMessage("Loading and testing tables.")
+
         print(f"load_tables: Starting StartWindow.load_tables().")
         self.tables = {}
         print(f"load_tables: StartWindow.workbook_fps: {self.workbook_fps}.")
@@ -119,6 +121,8 @@ class StartWindow(QMainWindow):
                 self.tables[wb_name][ws_name] = df.replace(to_replace=np.nan,
                                                            value=None)
             f.close()
+
+        self.statusbar.showMessage("Tables loaded. Application is ready.")
         print(f"load_tables: tables: {self.tables}")
 
         # Beginning table validation.
@@ -187,6 +191,8 @@ class StartWindow(QMainWindow):
         print(f"check_config_file: Completed StartWindow.check_config_file().")
 
     def load_config_files(self):
+        self.statusbar.showMessage("Loading and testing configuration files.")
+
         print(f"load_config_files: Starting StartWindow.load_config_files().")
         self.config = self.check_config_file(self.config_fp)
         print(f"load_config_files: config: {self.config}")
@@ -216,6 +222,8 @@ class StartWindow(QMainWindow):
                             f"dictionary of workbooks."
                 QMessageBox.critical(self, "Fatal Error", error_msg)
                 self.exit_app()
+
+        self.statusbar.showMessage("Configuration loaded after passing tests.")
         print(f"load_config_files: Configuration file passed checks.")
         print(f"load_config_files: Completed StartWindow.load_config_files().")
 
@@ -233,6 +241,9 @@ class StartWindow(QMainWindow):
         self.centralWidget().setLayout(self.hbox)
         self.hbox.addWidget(treasure_generator_button)
         self.hbox.addWidget(exit_button)
+
+        self.statusbar.showMessage("UI has started.")
+
         print(f"init_ui: Completed StartWindow.init_ui().")
 
     def start_treasure_window(self):
