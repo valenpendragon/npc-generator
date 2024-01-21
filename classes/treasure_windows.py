@@ -2,8 +2,8 @@ import sys
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QMessageBox, QApplication, QMainWindow, QStatusBar,
-                               QLabel, QHBoxLayout, QGridLayout)
-
+                               QLabel, QHBoxLayout, QGridLayout, QDockWidget)
+from PySide6.QtCore import Qt
 import json
 import os
 import pandas as pd
@@ -30,6 +30,9 @@ class TreasureWindow(QMainWindow):
         self.legendary_creature = False
         self.methodology = 'CR'
 
+        # Initialize the dock widgets that init_ui will create.
+        self.cr_docK_widget = None
+
         # Setup statusbar.
         self.statusbar = QStatusBar()
         self.setStatusBar(self.statusbar)
@@ -55,6 +58,14 @@ class TreasureWindow(QMainWindow):
         self.setCentralWidget(QWidget(self))
         self.grid = QGridLayout()
         self.centralWidget().setLayout(self.grid)
+
+        # Create the dock widget for CR-based treasure generation.
+        dock_widget_cr = QDockWidget(self)
+        dock_widget_cr.setWindowTitle("CR-Based Generation")
+        dock_widget_cr.setFloating(False)
+        dock_widget_cr.setAllowedAreas(Qt.DockWidgetArea.TopDockWidgetArea)
+        self.cr_docK_widget = dock_widget_cr
+        self.cr_docK_widget.show()
 
         # Add Close button and Exit button to statusBar
         self.statusbar.addWidget(close_button)
