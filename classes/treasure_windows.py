@@ -52,7 +52,6 @@ class TreasureWindow(QMainWindow):
         exit_button.clicked.connect(self.exit_app)
         self.status_msg = QLabel()
 
-
         self.setCentralWidget(QWidget(self))
         self.grid = QGridLayout()
         self.centralWidget().setLayout(self.grid)
