@@ -30,9 +30,6 @@ class TreasureWindow(QMainWindow):
         self.legendary_creature = False
         self.methodology = 'CR'
 
-        # Initialize the dock widgets that init_ui will create.
-        self.cr_docK_widget = None
-
         # Setup statusbar.
         self.statusbar = QStatusBar()
         self.setStatusBar(self.statusbar)
@@ -63,9 +60,9 @@ class TreasureWindow(QMainWindow):
         dock_widget_cr = QDockWidget(self)
         dock_widget_cr.setWindowTitle("CR-Based Generation")
         dock_widget_cr.setFloating(False)
-        dock_widget_cr.setAllowedAreas(Qt.DockWidgetArea.TopDockWidgetArea)
-        self.cr_docK_widget = dock_widget_cr
-        self.cr_docK_widget.show()
+        dock_widget_cr.setAllowedAreas(Qt.TopDockWidgetArea)
+        print(f"TreasureWindow.init_ui: dock widget area: {Qt.TopDockWidgetArea}")
+        self.addDockWidget(Qt.TopDockWidgetArea, dock_widget_cr)
 
         # Add Close button and Exit button to statusBar
         self.statusbar.addWidget(close_button)
