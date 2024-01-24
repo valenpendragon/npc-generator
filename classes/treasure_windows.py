@@ -62,6 +62,14 @@ class TreasureWindow(QMainWindow):
         dock_widget_cr.setFloating(False)
         dock_widget_cr.setAllowedAreas(Qt.TopDockWidgetArea)
         dock_widget_cr.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+        # Add the buttons in a QWidget that can be added using setWidget later.
+        cr_widget = QWidget(self)
+        cr_widget_layout = QGridLayout(self)
+        toggle_cr_button = QPushButton("Toggle CR", self)
+        toggle_cr_button.clicked.connect(self.cr_based_generation)
+        cr_widget_layout.addWidget(toggle_cr_button)
+        cr_widget.setLayout(cr_widget_layout)
+        dock_widget_cr.setWidget(cr_widget)
         self.addDockWidget(Qt.TopDockWidgetArea, dock_widget_cr)
 
         # Add Close button and Exit button to statusBar
