@@ -61,7 +61,7 @@ class TreasureWindow(QMainWindow):
         dock_widget_cr.setWindowTitle("CR-Based Generation")
         dock_widget_cr.setFloating(False)
         dock_widget_cr.setAllowedAreas(Qt.TopDockWidgetArea)
-        print(f"TreasureWindow.init_ui: dock widget area: {Qt.TopDockWidgetArea}")
+        dock_widget_cr.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         self.addDockWidget(Qt.TopDockWidgetArea, dock_widget_cr)
 
         # Add Close button and Exit button to statusBar
@@ -75,6 +75,10 @@ class TreasureWindow(QMainWindow):
 
     def exit_app(self):
         sys.exit()
+
+    def cr_based_generation(self):
+        update_txt = f"CR-Based Generation enabled."
+        self.status_msg.setText(update_txt)
 
 
 
