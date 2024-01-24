@@ -7,6 +7,7 @@ from PySide6.QtCore import Qt
 import json
 import os
 import pandas as pd
+import numpy as np
 import openpyxl
 
 
@@ -89,4 +90,44 @@ class TreasureWindow(QMainWindow):
         self.status_msg.setText(update_txt)
 
 
+if __name__ == "__main__":
+    data_dir = "../my_data"
+    conditions_fp = f"{data_dir}/conditions.json"
+    config_fp = f"{data_dir}/config.json"
+    damage_types_fp = f"{data_dir}/damage_types.json"
+    highlighting_fp = f"{data_dir}/highlighting.json"
+    def load_json(filepath):
+        with open(filepath, 'r') as f:
+            content= f.read()
+        json_content = json.loads(content)
+        return json_content
+    config = load_json(config_fp)
+    conditions = load_json(conditions_fp)
+    damage_types = load_json(damage_types_fp)
+    highlighting = load_json(highlighting_fp)
+    tables = {}
+    workbook_names = config['tables']['required tables']
+    workbook_fps = []
+    for wb_name in workbook_names:
+        fp = f"{data_dir}/{wb_name}"
+        workbook_fps.append(fp)
+    for idx, wb_name in enumerate(workbook_names):
+        tables[wb_name] = {}
+        wb_fp = workbook_fps[idx]
+        ws_list = config['tables']['required tables'][wb_name]
+        f = pd.ExcelFile(wb_fp)
+        for ws_name in ws_list:
+            df = pd.read_excel(wb_fp, sheet_name=ws_name,
+                               index_col=0, na_values=True)
+            tables[wb_name][ws_name] = df.replace(to_replace=np.nan,
+                                                  value=None)
 
+        f.close()
+
+    sys.argv += ['-platform', 'windows:darkmode=2']
+    app = QApplication(sys.argv)
+    app.setStyle('Fusion')
+    window = TreasureWindow(config, conditions, damage_types,
+                            highlighting, tables)
+    window.show()
+    sys.exit(app.exec())
