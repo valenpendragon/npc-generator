@@ -2,7 +2,8 @@ import sys
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QMessageBox, QApplication, QMainWindow, QStatusBar,
-                               QLabel, QHBoxLayout, QGridLayout, QDockWidget)
+                               QLabel, QHBoxLayout, QGridLayout, QDockWidget,
+                               QComboBox)
 from PySide6.QtCore import Qt
 import json
 import os
@@ -63,12 +64,32 @@ class TreasureWindow(QMainWindow):
         dock_widget_cr.setFloating(False)
         dock_widget_cr.setAllowedAreas(Qt.TopDockWidgetArea)
         dock_widget_cr.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
-        # Add the buttons in a QWidget that can be added using setWidget later.
+
+        # Add the QWidget that contains the widgets residing the top DockWidget.
         cr_widget = QWidget(self)
         cr_widget_layout = QGridLayout(self)
         toggle_cr_button = QPushButton("Toggle CR", self)
         toggle_cr_button.clicked.connect(self.cr_based_generation)
         cr_widget_layout.addWidget(toggle_cr_button, 0, 0)
+        cr_label = QLabel("Chose Total CR for Encounter: ")
+        cr_widget_layout.addWidget(cr_label, 0, 1)
+
+        #  This is a large combo box for the total CR of the encounter.
+        cr_dropdown = QComboBox(self)
+        dropdown_choices = ['1/8', '1/4', '1/2',
+                            '1', '2', '3', '4', '5',
+                            '6', '7', '8', '9', '10',
+                            '11', '12', '13', '14', '15',
+                            '16', '17', '18', '19', '20',
+                            '21', '22', '23', '24', '25',
+                            '26', '27', '28', '29', '30',
+                            '31', '32', '33', '34', '35',
+                            '36', '37', '38', '39', '40',
+                            '41+']
+        cr_dropdown.addItems(dropdown_choices)
+        cr_widget_layout.addWidget(cr_dropdown, 0, 2)
+
+        # Add widgets to top DockWidget.
         cr_widget.setLayout(cr_widget_layout)
         dock_widget_cr.setWidget(cr_widget)
         self.addDockWidget(Qt.TopDockWidgetArea, dock_widget_cr)
