@@ -68,7 +68,7 @@ class TreasureWindow(QMainWindow):
         cr_widget_layout = QGridLayout(self)
         toggle_cr_button = QPushButton("Toggle CR", self)
         toggle_cr_button.clicked.connect(self.cr_based_generation)
-        cr_widget_layout.addWidget(toggle_cr_button)
+        cr_widget_layout.addWidget(toggle_cr_button, 0, 0)
         cr_widget.setLayout(cr_widget_layout)
         dock_widget_cr.setWidget(cr_widget)
         self.addDockWidget(Qt.TopDockWidgetArea, dock_widget_cr)
