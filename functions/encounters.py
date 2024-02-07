@@ -23,3 +23,29 @@ class Creature(ABC):
     bloc.
     """
     pass
+
+
+class Spell:
+    """
+    This class stores data on a spell or spell-like ability that
+    appears in a Creature's potential actions. The attributes store
+    data on the spell and its effects.
+    """
+    pass
+
+
+class Action:
+    """
+    This class stores data on actions that a creature can take on its
+    turn. This includes attack type, bonus to hit, range, area of
+    effect, damage, damage type, and description.
+    """
+    pass
+
+
+class MultiAttack:
+    """
+    This class specifies the number of attacks permitted to the creature
+    and which of the attacks this applies to.
+    """
+    pass
