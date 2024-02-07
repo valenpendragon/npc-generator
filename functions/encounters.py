@@ -34,6 +34,12 @@ class Spell:
     pass
 
 
+class SpellCasting:
+    """
+    This class contains the casting level of the Crea
+    """
+
+
 class Action:
     """
     This class stores data on actions that a creature can take on its
