@@ -1,4 +1,5 @@
 from abc import ABC
+from .dice import Dice
 
 
 class Encounter(ABC):
@@ -108,8 +109,11 @@ class Spell:
                                 range
         type        str         damage type it can inflict
         damage      Dice        the number and type of dice used to roll
-                                the damage
-        mod         int         modifier for the attack damage after
+                                the damage, use dice=0 and dice_no=0
+                                for spells that do not do specific damage
+        dice_mod    int         this attribute stores -1 for disadvantage
+                                0 for normal roll, and +1 for advantage
+        damage_mod  int         modifier for the attack damage after
                                 rolling
         innate      bool        False for normal spellcasting, True for
                                 innate spell abilities
@@ -117,16 +121,30 @@ class Spell:
                                 ability that has a specified number of
                                 times per day or long/short rest that
                                 it may be used
-    mod defaults to 0, innate to False, and frequency to 0.
+    dice defaults to 0, dice_no to 0, dice_mod to 0  mod to 0, innate to
+    False, and frequency to 0.
     """
-    def __init__(self, name: str, desc: str, range: int, mod=0,
-                 innate=False, frequency=0):
+    def __init__(self, name: str, desc: str, range: int, dice=0,
+                 dice_no=0, dice_mod=0, mod=0, innate=False,
+                 frequency=0):
         self.name = name
         self.desc = desc
         self.range = range
         self.mod = mod
         self.innate = innate
         self.frequency = frequency
+        self.dice_mod = dice_mod
+        if dice != 0 and dice_no != 0:
+            if dice_mod == -1:
+                self.damage = Dice(dice, dice_number=dice_no,
+                                   roll_type="disadvantage")
+            elif dice_mod == 1:
+                self.damage = Dice(dice, dice_number=dice_no,
+                                   roll_type="advantage")
+            else:
+                self.damage = Dice(dice, dice_number=dice_no)
+        else:
+            self.damage = None
 
 
 class SpellCasting:
