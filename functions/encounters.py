@@ -98,13 +98,35 @@ class Sense:
 class Spell:
     """
     This class stores data on a spell or spell-like ability that
-    appears in a Creature's potential actions. The attributes include:
-    name (str), which is the name of the spell; innate (bool), False
-    for normal spellcasting, True for innate spell abilities; and frequency
-    (int), set to 0 for normal spells, non-zero for innate abilities and
-    indicated frequency per day or long rest that it can be used.
+    appears in a Creature's potential actions. The attributes are:
+        Attribute   Class       Description
+        name        str         name of the spell
+        desc        str         descriptive text of the spell
+        range       int         distance in ft that it can be cast,
+                                if short/long are defined, use long,
+                                0 indicates touch, 5 indicate melee
+                                range
+        type        str         damage type it can inflict
+        damage      Dice        the number and type of dice used to roll
+                                the damage
+        mod         int         modifier for the attack damage after
+                                rolling
+        innate      bool        False for normal spellcasting, True for
+                                innate spell abilities
+        frequency   int         0 for normal spells, non-zero for any
+                                ability that has a specified number of
+                                times per day or long/short rest that
+                                it may be used
+    mod defaults to 0, innate to False, and frequency to 0.
     """
-    pass
+    def __init__(self, name: str, desc: str, range: int, mod=0,
+                 innate=False, frequency=0):
+        self.name = name
+        self.desc = desc
+        self.range = range
+        self.mod = mod
+        self.innate = innate
+        self.frequency = frequency
 
 
 class SpellCasting:
