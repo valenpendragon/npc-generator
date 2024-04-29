@@ -37,6 +37,9 @@ class TreasureWindow(QMainWindow):
         self.setStatusBar(self.statusbar)
         self.status_msg = None
 
+        # Set up internal variables.
+        self._use_cr_mode = True
+
         # Initialize the grig.
         self.grid = None
 
@@ -68,9 +71,9 @@ class TreasureWindow(QMainWindow):
         # Add the QWidget that contains the widgets residing the top DockWidget.
         cr_widget = QWidget(self)
         cr_widget_layout = QGridLayout(self)
-        toggle_cr_button = QPushButton("Toggle CR", self)
-        toggle_cr_button.clicked.connect(self.cr_based_generation)
-        cr_widget_layout.addWidget(toggle_cr_button, 0, 0)
+        self.toggle_cr_button = QPushButton("Toggle CR Off", self)
+        self.toggle_cr_button.clicked.connect(self.toggle_cr)
+        cr_widget_layout.addWidget(self.toggle_cr_button, 0, 0)
         cr_label = QLabel("Chose Total CR for Encounter: ")
         cr_widget_layout.addWidget(cr_label, 0, 1)
 
@@ -106,9 +109,13 @@ class TreasureWindow(QMainWindow):
     def exit_app(self):
         sys.exit()
 
-    def cr_based_generation(self):
-        update_txt = f"CR-Based Generation enabled."
-        self.status_msg.setText(update_txt)
+    def toggle_cr(self):
+        if self._use_cr_mode:
+            self._use_cr_mode = False
+            self.toggle_cr_button.setText("Toggle CR On")
+        else:
+            self._use_cr_mode = True
+            self.toggle_cr_button.setText("Toggle CR Off")
 
 
 if __name__ == "__main__":
@@ -117,11 +124,13 @@ if __name__ == "__main__":
     config_fp = f"{data_dir}/config.json"
     damage_types_fp = f"{data_dir}/damage_types.json"
     highlighting_fp = f"{data_dir}/highlighting.json"
+
     def load_json(filepath):
         with open(filepath, 'r') as f:
             content= f.read()
         json_content = json.loads(content)
         return json_content
+
     config = load_json(config_fp)
     conditions = load_json(conditions_fp)
     damage_types = load_json(damage_types_fp)
