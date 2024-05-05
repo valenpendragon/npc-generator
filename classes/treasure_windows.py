@@ -27,7 +27,7 @@ class TreasureWindow(QMainWindow):
         self.tables = tables
 
         # Set minimum values for new attributes.
-        self.encounter_challenge_rating = 0
+        self.encounter_challenge_rating = '0'
         self.elite_creature = False
         self.legendary_creature = False
         self.methodology = 'CR'
@@ -93,7 +93,6 @@ class TreasureWindow(QMainWindow):
         self.cr_dropdown.activated.connect(self._pass_cr_value)
         self.cr_widget_layout.addWidget(self.cr_dropdown, 0, 2)
 
-
         # Add widgets to top DockWidget.
         self.cr_widget.setLayout(self.cr_widget_layout)
         self.dock_widget_cr.setWidget(self.cr_widget)
@@ -108,6 +107,7 @@ class TreasureWindow(QMainWindow):
 
         print(f"TreasureWindow.init_ui: Completed TreasureWindow.init_ui().")
 
+    @staticmethod
     def exit_app(self):
         sys.exit()
 
