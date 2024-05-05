@@ -51,12 +51,16 @@ class TreasureWindow(QMainWindow):
         self.setMinimumSize(800, 600)
         self.setWindowTitle("Treasure Generation Window")
 
+        # Create the Close and Exit buttons. Create the status
+        # message. Positioning will handled near the end of this
+        # method.
         close_button = QPushButton("Close")
         close_button.clicked.connect(self.close)
         exit_button = QPushButton("Exit")
         exit_button.clicked.connect(self.exit_app)
         self.status_msg = QLabel()
 
+        # Set up the CentralWidget that will display our output.
         self.setCentralWidget(QWidget(self))
         self.grid = QGridLayout()
         self.centralWidget().setLayout(self.grid)
@@ -98,7 +102,13 @@ class TreasureWindow(QMainWindow):
         self.dock_widget_cr.setWidget(self.cr_widget)
         self.addDockWidget(Qt.TopDockWidgetArea, self.dock_widget_cr)
 
-        # Add Close button and Exit button to statusBar
+        # Add run treasure generation button.
+        self.generate_treasure_button = QPushButton('Generate')
+        self.statusbar.addWidget(self.generate_treasure_button)
+        self.generate_treasure_button.clicked.connect(self.generate_treasure)
+
+        # Add Generate Treasure button, Close button, and Exit button to statusBar.
+        self.statusbar.addWidget(self.generate_treasure_button)
         self.statusbar.addWidget(close_button)
         self.statusbar.addWidget(exit_button)
         self.statusbar.addWidget(self.status_msg)
@@ -123,6 +133,11 @@ class TreasureWindow(QMainWindow):
         self.encounter_challenge_rating = str(self.cr_dropdown.currentText())
         print(f"TreasureWindow.init_ui: encounter_challenge_rating: "
               f"{self.encounter_challenge_rating}")
+
+    def generate_treasure(self):
+        print(f"TreasureWindow.generate_treasure: _use_cr_mode: "
+              f"{self._use_cr_mode}. encounter_challenge_rating: "
+              f"{self.encounter_challenge_rating}.")
 
 
 if __name__ == "__main__":
