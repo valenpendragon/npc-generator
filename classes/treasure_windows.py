@@ -45,7 +45,7 @@ class TreasureWindow(QMainWindow):
 
         # Run init_ui.
         self.init_ui()
-        print(f"treasure_window: Completed TreasureWindow.__init__().")
+        print(f"TreasureWindow: Completed TreasureWindow.__init__().")
 
     def init_ui(self):
         self.setMinimumSize(800, 600)
@@ -62,24 +62,24 @@ class TreasureWindow(QMainWindow):
         self.centralWidget().setLayout(self.grid)
 
         # Create the dock widget for CR-based treasure generation.
-        dock_widget_cr = QDockWidget(self)
-        dock_widget_cr.setWindowTitle("CR-Based Generation")
-        dock_widget_cr.setFloating(False)
-        dock_widget_cr.setAllowedAreas(Qt.TopDockWidgetArea)
-        dock_widget_cr.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
+        self.dock_widget_cr = QDockWidget(self)
+        self.dock_widget_cr.setWindowTitle("CR-Based Generation")
+        self.dock_widget_cr.setFloating(False)
+        self.dock_widget_cr.setAllowedAreas(Qt.TopDockWidgetArea)
+        self.dock_widget_cr.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
 
         # Add the QWidget that contains the widgets residing the top DockWidget.
-        cr_widget = QWidget(self)
-        cr_widget_layout = QGridLayout(self)
+        self.cr_widget = QWidget(self)
+        self.cr_widget_layout = QGridLayout(self)
         self.toggle_cr_button = QPushButton("Toggle CR Off", self)
         self.toggle_cr_button.clicked.connect(self.toggle_cr)
-        cr_widget_layout.addWidget(self.toggle_cr_button, 0, 0)
-        cr_label = QLabel("Chose Total CR for Encounter: ")
-        cr_widget_layout.addWidget(cr_label, 0, 1)
+        self.cr_widget_layout.addWidget(self.toggle_cr_button, 0, 0)
+        self.cr_label = QLabel("Chose Total CR for Encounter: ")
+        self.cr_widget_layout.addWidget(self.cr_label, 0, 1)
 
         #  This is a large combo box for the total CR of the encounter.
-        cr_dropdown = QComboBox(self)
-        dropdown_choices = ['1/8', '1/4', '1/2',
+        self.cr_dropdown = QComboBox(self)
+        dropdown_choices = ['0', '1/8', '1/4', '1/2',
                             '1', '2', '3', '4', '5',
                             '6', '7', '8', '9', '10',
                             '11', '12', '13', '14', '15',
@@ -89,13 +89,15 @@ class TreasureWindow(QMainWindow):
                             '31', '32', '33', '34', '35',
                             '36', '37', '38', '39', '40',
                             '41+']
-        cr_dropdown.addItems(dropdown_choices)
-        cr_widget_layout.addWidget(cr_dropdown, 0, 2)
+        self.cr_dropdown.addItems(dropdown_choices)
+        self.cr_dropdown.activated.connect(self._pass_cr_value)
+        self.cr_widget_layout.addWidget(self.cr_dropdown, 0, 2)
+
 
         # Add widgets to top DockWidget.
-        cr_widget.setLayout(cr_widget_layout)
-        dock_widget_cr.setWidget(cr_widget)
-        self.addDockWidget(Qt.TopDockWidgetArea, dock_widget_cr)
+        self.cr_widget.setLayout(self.cr_widget_layout)
+        self.dock_widget_cr.setWidget(self.cr_widget)
+        self.addDockWidget(Qt.TopDockWidgetArea, self.dock_widget_cr)
 
         # Add Close button and Exit button to statusBar
         self.statusbar.addWidget(close_button)
@@ -104,7 +106,7 @@ class TreasureWindow(QMainWindow):
         update_txt = f"Treasure Generator is ready to use."
         self.status_msg.setText(update_txt)
 
-        print(f"TW.init_ui: Completed TreasureWindow.init_ui().")
+        print(f"TreasureWindow.init_ui: Completed TreasureWindow.init_ui().")
 
     def exit_app(self):
         sys.exit()
@@ -116,6 +118,11 @@ class TreasureWindow(QMainWindow):
         else:
             self._use_cr_mode = True
             self.toggle_cr_button.setText("Toggle CR Off")
+
+    def _pass_cr_value(self):
+        self.encounter_challenge_rating = str(self.cr_dropdown.currentText())
+        print(f"TreasureWindow.init_ui: encounter_challenge_rating: "
+              f"{self.encounter_challenge_rating}")
 
 
 if __name__ == "__main__":
