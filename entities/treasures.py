@@ -5,6 +5,7 @@ from collections import namedtuple
 Gem = namedtuple('Gem', ['type', 'value'])
 Valuable = namedtuple('Valuable',
                       ['item', 'example', 'value'])
+Coin = namedtuple('Coin', ['number', 'type'])
 
 
 class MagicItem:
@@ -52,10 +53,6 @@ class OtherWealth:
             else:
                 s += f"Valuable: {item.item}, example: {item.example}, value: {item.value}\n"
         return s
-
-
-class Coins:
-    pass
 
 
 class Treasure:
