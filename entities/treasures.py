@@ -33,17 +33,7 @@ class OtherWealth:
     def __init__(self, *args):
         self.item_list = []
         for item in args:
-            match len(item):
-                case 2:
-                    new_item = Gem(type=item[0], value=item[1])
-                case 3:
-                    new_item = Valuable(item=item[0], example=item[1], value=item[2])
-                case _:
-                    error_msg = (f"OtherWealth: Treasure items must have "
-                                 f"either length 2 (gem) or length 3 (valuable), "
-                                 f"not {len(item)}.")
-                    raise ValueError(error_msg)
-            self.item_list.append(new_item)
+            self.add_item(item)
 
     def __str__(self):
         s = "Other Valuables:\n"
@@ -53,6 +43,26 @@ class OtherWealth:
             else:
                 s += f"Valuable: {item.item}, example: {item.example}, value: {item.value}\n"
         return s
+
+    def add_item(self, item):
+        """
+        This method adds an item to OtherWealth.item_list. The item
+        must be a tuple of length 2 for a Gem (item, value) or length 2
+        for a Valuable (item, example, value).
+        :param item: tuple of length 2 or 3
+        :return: None
+        """
+        match len(item):
+            case 2:
+                new_item = Gem(type=item[0], value=item[1])
+            case 3:
+                new_item = Valuable(item=item[0], example=item[1], value=item[2])
+            case _:
+                error_msg = (f"OtherWealth: Treasure items must have "
+                             f"either length 2 (gem) or length 3 (valuable), "
+                             f"not {len(item)}.")
+                raise ValueError(error_msg)
+        self.item_list.append(new_item)
 
 
 class Treasure:
@@ -64,19 +74,30 @@ class Treasure:
     def __init__(self, *args):
         self.item_list = []
         for item in args:
-            if (isinstance(item, Coin) or
-                    isinstance(item, OtherWealth) or
-                    isinstance(item, MagicItem)):
-                self.item_list.append(item)
-            else:
-                error_msg = (f"Treasure: Items supplied as arguments "
-                             f"to this class must be of type Coin, "
-                             f"MagicItem, or OtherWealth, not type, "
-                             f"{type(item)}.")
-                raise TypeError(error_msg)
+            self.add_item(item)
 
     def __str__(self):
         s = f"Treasure List:\n"
         for item in self.item_list:
             s += f"{item}\n"
         return s
+
+    def add_item(self, item):
+        """
+        This method adds an item to Treasure.item_list. The item must
+        be of type Coin, MagicItem, or OtherWealth. Any other object
+        type will raise a TypeError.
+        :param item: object of type Coin, MagicItme, or OtherWealth
+        :return: None
+        """
+        if (isinstance(item, Coin) or
+                isinstance(item, OtherWealth) or
+                isinstance(item, MagicItem)):
+            self.item_list.append(item)
+        else:
+            error_msg = (f"Treasure: Items supplied as arguments "
+                         f"to this class must be of type Coin, "
+                         f"MagicItem, or OtherWealth, not type, "
+                         f"{type(item)}.")
+            raise TypeError(error_msg)
+
