@@ -56,4 +56,27 @@ class OtherWealth:
 
 
 class Treasure:
-    pass
+    """
+    This class only takes a list of objects of classes MagicItem, Coin, or
+    OtherWealth. Any other type of item included in the arguments will
+    raise a TypeError.
+    """
+    def __init__(self, *args):
+        self.item_list = []
+        for item in args:
+            if (isinstance(item, Coin) or
+                    isinstance(item, OtherWealth) or
+                    isinstance(item, MagicItem)):
+                self.item_list.append(item)
+            else:
+                error_msg = (f"Treasure: Items supplied as arguments "
+                             f"to this class must be of type Coin, "
+                             f"MagicItem, or OtherWealth, not type, "
+                             f"{type(item)}.")
+                raise TypeError(error_msg)
+
+    def __str__(self):
+        s = f"Treasure List:\n"
+        for item in self.item_list:
+            s += f"{item}\n"
+        return s
