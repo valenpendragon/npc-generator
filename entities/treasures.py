@@ -2,7 +2,8 @@ from collections import namedtuple
 
 # value is an integer or float in the main currency for the game.  For D&D, that
 # would be integer gold pieces. For TFT, that would silver dollars.
-Gem = namedtuple('Gem', ['type', 'value'])
+Gem = namedtuple('Gem',
+                 ['type', 'description', 'value'])
 Valuable = namedtuple('Valuable',
                       ['item', 'example', 'value'])
 Coin = namedtuple('Coin', ['number', 'type'])
@@ -24,45 +25,38 @@ class MagicItem:
 class OtherWealth:
     """
     This class handles objects of value other than coins and magic items
-    that often show up in treasures. These items have more attributes
-    than magic items. There are gems and valuables. Arguments must be in
-    the form of tuples. The length determines if the tuple represents a
-    gem or valuable. Gem requires (type, value). Valuable requires (item,
-    example, value). value is always an integer or a float.
+    that often show up in treasures. __init__ simply creates an empty
+    OtherWealth object. Each gem or valuable needs to added to an
+    OtherWealth object using the add_item method.
     """
-    def __init__(self, *args):
+    def __init__(self):
         self.item_list = []
-        for item in args:
-            self.add_item(item)
 
     def __str__(self):
         s = "Other Valuables:\n"
         for item in self.item_list:
             if isinstance(item, Gem):
-                s += f"Gem: {item.type}, value: {item.value}\n"
+                s += (f"Gem: {item.type}, "
+                      f"description: {item.description}, "
+                      f"value: {item.value}.\n")
             else:
-                s += f"Valuable: {item.item}, example: {item.example}, value: {item.value}\n"
+                s += (f"Valuable: {item.item}, example: {item.example}, "
+                      f"value: {item.value}\n")
         return s
 
     def add_item(self, item):
         """
-        This method adds an item to OtherWealth.item_list. The item
-        must be a tuple of length 2 for a Gem (item, value) or length 2
-        for a Valuable (item, example, value).
-        :param item: tuple of length 2 or 3
+        This method adds an item to OtherWealth.item_list. The item must be either a
+        Gem or Valuable object, otherwise a TypeError will be raised.
         :return: None
         """
-        match len(item):
-            case 2:
-                new_item = Gem(type=item[0], value=item[1])
-            case 3:
-                new_item = Valuable(item=item[0], example=item[1], value=item[2])
-            case _:
-                error_msg = (f"OtherWealth: Treasure items must have "
-                             f"either length 2 (gem) or length 3 (valuable), "
-                             f"not {len(item)}.")
-                raise ValueError(error_msg)
-        self.item_list.append(new_item)
+        if isinstance(item, Gem) or isinstance(item, Valuable):
+            self.item_list.append(item)
+        else:
+            error_msg = (f"OtherWealth.add_item: Only items of type Gem or Valuable "
+                         f"may added to OtherWealth objects. items is type "
+                         f"{type(item)}.")
+            raise TypeError(error_msg)
 
 
 class Treasure:
@@ -101,3 +95,6 @@ class Treasure:
                          f"{type(item)}.")
             raise TypeError(error_msg)
 
+
+if __name__ == "__main__":
+    pass
