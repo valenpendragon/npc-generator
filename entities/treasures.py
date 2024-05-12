@@ -73,8 +73,12 @@ class Treasure:
     def __str__(self):
         s = f"Treasure List:\n"
         for item in self.item_list:
-            s += f"{item}\n"
-        return s
+            if (isinstance(item, MagicItem) or
+                    isinstance(item, OtherWealth)):
+                s += f"{item}\n"
+            else:
+                s += f"Cash: {item.number} {item.type}\n"
+        return s.replace('\n\n', '\n')
 
     def add_item(self, item):
         """
@@ -97,4 +101,66 @@ class Treasure:
 
 
 if __name__ == "__main__":
-    pass
+    desc_item_1 = "+1 Weapon"
+    desc_item_2 = "healing potion"
+    desc_item_3 = "robe of the archmage"
+
+    gem1 = Gem("opal",
+               'Transparent, iridescent, many colors including white, black, blue,'
+               ' red, and green', 250)
+    gem2 = Gem("diamond",
+               "Transparent and clear (the most prized diamonds have no visible "
+               "inclusions or flaws)", 5000)
+    gem3 = Gem("jade", "Translucent green", 100)
+    print("Gems created.")
+    valuable1 = Valuable("necklace", "Ruby pendant or string of pearls", 2500)
+    valuable2 = Valuable("statuary", "Marble bust or small silver idol", 250)
+    valuable3 = Valuable('earrings',
+                         "Dangling platinum earrings or white and black pearl pendants",
+                         750)
+    print('Valuables created.')
+    coin1 = Coin(350, 'cp')
+    coin2 = Coin(400, 'sp')
+    coin3 = Coin(150, 'gp')
+    coin4 = Coin(70, 'pp')
+    print("Cash as coins created.")
+
+    magic_item_1 = MagicItem(desc_item_1)
+    magic_item_2 = MagicItem(desc_item_2)
+    magic_item_3 = MagicItem(desc_item_3)
+    print(f"Magic items: {magic_item_1}, {magic_item_2}, {magic_item_3}")
+
+    other_wealth_1 = OtherWealth()
+    other_wealth_1.add_item(gem1)
+    other_wealth_1.add_item(valuable1)
+    other_wealth_2 = OtherWealth()
+    other_wealth_2.add_item(gem2)
+    other_wealth_2.add_item(valuable2)
+    other_wealth_3 = OtherWealth()
+    other_wealth_3.add_item(gem3)
+    other_wealth_3.add_item(valuable3)
+    print("Other wealth created from gems and valuables.")
+    try:
+        other_wealth_3.add_item(magic_item_1)
+    except TypeError:
+        print(f"Error test: OtherWealth can only add items of type"
+              f" Gem or Valuable.\n")
+
+    for item in (other_wealth_1, other_wealth_2, other_wealth_3):
+        print(item)
+
+    treasure_1 = Treasure(magic_item_1, other_wealth_1, coin1)
+    treasure_2 = Treasure(magic_item_2, other_wealth_2, coin2)
+    treasure_3 = Treasure(magic_item_3, other_wealth_3, coin3,
+                          coin4)
+    print("Error test: Treasures created from cash (coin), magic items,"
+          " and other wealth.")
+
+    try:
+        treasure_4 = Treasure(magic_item_1, gem1, valuable2)
+    except TypeError:
+        print(f"Treasure can only add items of type Coin, OtherWealth, "
+              f"or MagicItem.\n")
+
+    for item in (treasure_1, treasure_2, treasure_3):
+        print(item)
