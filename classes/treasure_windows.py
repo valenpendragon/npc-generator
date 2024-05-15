@@ -139,6 +139,18 @@ class TreasureWindow(QMainWindow):
               f"{self._use_cr_mode}. encounter_challenge_rating: "
               f"{self.encounter_challenge_rating}.")
 
+        # Pull the actual integer value for CR.
+        match self.encounter_challenge_rating:
+            case '0'|'1/8':
+                cr = 0
+            case '1/4'|'1/2':
+                cr = 1
+            case '41+':
+                cr = 41
+            case _:
+                cr = int(self.encounter_challenge_rating)
+        print(f"TreasureWindow.generate_treasure: cr: {cr}")
+
 
 if __name__ == "__main__":
     data_dir = "../my_data"
