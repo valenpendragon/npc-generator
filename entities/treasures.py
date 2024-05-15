@@ -71,14 +71,17 @@ class Treasure:
             self.add_item(item)
 
     def __str__(self):
-        s = f"Treasure List:\n"
-        for item in self.item_list:
-            if (isinstance(item, MagicItem) or
-                    isinstance(item, OtherWealth)):
-                s += f"{item}\n"
-            else:
-                s += f"Cash: {item.number} {item.type}\n"
-        return s.replace('\n\n', '\n')
+        if len(self.item_list) == 0:
+            return "Treasure List is empty"
+        else:
+            s = f"Treasure List:\n"
+            for item in self.item_list:
+                if (isinstance(item, MagicItem) or
+                        isinstance(item, OtherWealth)):
+                    s += f"{item}\n"
+                else:
+                    s += f"Cash: {item.number} {item.type}\n"
+            return s.replace('\n\n', '\n')
 
     def add_item(self, item):
         """

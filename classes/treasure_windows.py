@@ -10,6 +10,8 @@ import os
 import pandas as pd
 import numpy as np
 import openpyxl
+from entities import (Treasure, OtherWealth, MagicItem,
+                      Coin, Gem, Valuable)
 
 
 class TreasureWindow(QMainWindow):
@@ -31,6 +33,9 @@ class TreasureWindow(QMainWindow):
         self.elite_creature = False
         self.legendary_creature = False
         self.methodology = 'CR'
+
+        # Initialize encounter attributes.
+        self.treasure = None
 
         # Setup statusbar.
         self.statusbar = QStatusBar()
@@ -149,7 +154,11 @@ class TreasureWindow(QMainWindow):
                 cr = 41
             case _:
                 cr = int(self.encounter_challenge_rating)
-        print(f"TreasureWindow.generate_treasure: cr: {cr}")
+
+        # Create an empty Treasure object.
+        self.treasure = Treasure()
+        print(f"TreasureWindow.generate_treasure: cr: {cr}. "
+              f"treasure: {self.treasure}.")
 
 
 if __name__ == "__main__":
