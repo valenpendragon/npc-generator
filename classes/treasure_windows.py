@@ -12,6 +12,7 @@ import numpy as np
 import openpyxl
 from entities import (Treasure, OtherWealth, MagicItem,
                       Coin, Gem, Valuable)
+from functions import return_range
 
 
 class TreasureWindow(QMainWindow):
@@ -159,6 +160,95 @@ class TreasureWindow(QMainWindow):
         self.treasure = Treasure()
         print(f"TreasureWindow.generate_treasure: cr: {cr}. "
               f"treasure: {self.treasure}.")
+
+        # Find the correct workbook for CR-Based treasure generation.
+        cr_wb_name = ''
+        for wb_name in self.config['tables']['required tables']:
+            if 'cr' in wb_name.lower():
+                cr_wb_name = wb_name
+        if cr_wb_name == '':
+            error_msg = (f"TreasureWindow.generate_treasure: A CR-based "
+                         f"treasure workbook could not be found in "
+                         f"required tables.")
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+
+        # Get the correct worksheet for coin (cash) treasure.
+        coin_ws = self._return_ws_name('coin', cr, cr_wb_name)
+        print(f"TreasureWindow.generate_treasure: coin_ws: {coin_ws}.")
+
+
+
+    @staticmethod
+    def _get_cr_range(s):
+        """
+        This static method requires a string and return a tuple of
+        integers that is a range of values. It looks for CR or CRs to
+        find the range that follows this string.
+        :param s: str, workbook title
+        :return: 2-tuple of int
+        """
+        s_lc = s.lower()
+        l = s_lc.split()
+        r_txt = l[-2]
+        if r_txt[-1] == '+':
+            r_txt = r_txt[:-1]
+        return return_range(r_txt)
+
+    @staticmethod
+    def _get_last_word(s):
+        """
+        This method returns the last word of a title. It is used to
+        determine which type of treasure the workbook generates.
+        :param s: str, workbook title
+        :return: str, last word of title in lowercase
+        """
+        s_lc = s.lower()
+        l = s_lc.split()
+        treasure_type = l[-1]
+        return treasure_type
+
+    def _return_ws_name(self, treasure_type, cr, wb_name):
+        """
+        This method finds the worksheet title in
+        self.config[tables][required tables][wb_name] that contains
+        the cr in its cr range and matches the treasure_type.
+        :param treasure_type: str, only 'coin', 'magic', and 'other
+            are valid values
+        :param cr: int
+        :param wb_name: str, workbook name
+        :return: str, worksheet title
+        """
+        if treasure_type not in ('coin', 'magic', 'other'):
+            error_msg = (f"Treasure_window._return_ws_name: Invalid "
+                         f"type of treasure, {treasure_type}. Only"
+                         f"coin, magic, or other are supported.")
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+
+        ws_list = self.config['tables']['required tables'][wb_name]
+        correct_ws = ''
+        for ws_name in ws_list:
+            low, high = self._get_cr_range(ws_name)
+            type_in_title = self._get_last_word(ws_name)
+            if low > high:
+                low, high = high, low
+            if low <= cr <= high:
+                if treasure_type == type_in_title:
+                    correct_ws = ws_name
+                    break
+                else:
+                    continue
+            else:
+                continue
+        if correct_ws == '':
+            error_msg = (f"Treasure_window._return_ws_name: No "
+                         f"worksheet in {wb_name} contains the "
+                         f"CR {cr}.")
+            QMessageBox.critical(self, "Fatal Error", error_msg)
+            self.exit_app()
+        else:
+            return correct_ws
 
 
 if __name__ == "__main__":
