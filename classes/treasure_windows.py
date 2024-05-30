@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 import openpyxl
 from entities import (Treasure, OtherWealth, MagicItem,
-                      Coin, Gem, Valuable)
+                      Coin, Gem, Valuable, Dice)
 from functions import return_range
 
 
@@ -177,6 +177,17 @@ class TreasureWindow(QMainWindow):
         coin_ws = self._return_ws_name('coin', cr, cr_wb_name)
         print(f"TreasureWindow.generate_treasure: coin_ws: {coin_ws}.")
 
+        # Generate the coin treasure from it.
+        coin_table = self.tables[cr_wb_name][coin_ws]
+        dice_info = coin_table.columns[0].lower()
+        dice_size = int(dice_info.replace('d', ''))
+        coin_die = Dice(dice_size)
+        coin_result = coin_die.roll()
+
+        print(f"TreasureWindow.generate_treasure: coin_table: {coin_table}")
+        print(f"TreasureWindow.generate_treasure: coin_die: {coin_die}")
+        print(f"TreasureWindow.generate_treasure: dice_info: {dice_info}. "
+              f"dice_size: {dice_size}. coin_result: {coin_result}.")
 
 
     @staticmethod
