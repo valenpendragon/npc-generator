@@ -188,7 +188,23 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow.generate_treasure: coin_die: {coin_die}")
         print(f"TreasureWindow.generate_treasure: dice_info: {dice_info}. "
               f"dice_size: {dice_size}. coin_result: {coin_result}.")
+        result = self._get_table_result(coin_table, coin_result)
 
+    @staticmethod
+    def _get_table_result(table, roll):
+        """
+        This static method takes the roll integer, finds the value in the dXX columns
+        that contains that value (or is in the range of values) and returns the
+        corresponding result text.
+        :param table: pandas Dataframe
+        :param roll: int
+        :return: str
+        """
+        roll_col_name, result_col_name = table.columns
+        roll_col = table[roll_col_name]
+        result_col = table[result_col_name]
+        print(f"TreasureWindow._get_table_result: roll_col: {roll_col}.")
+        print(f"TreasureWindow._get_table_result: result_col: {result_col}.")
 
     @staticmethod
     def _get_cr_range(s):
