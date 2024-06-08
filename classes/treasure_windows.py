@@ -191,13 +191,24 @@ class TreasureWindow(QMainWindow):
         result = self._get_table_result(coin_table, coin_ws, coin_result)
         print(f"TreasureWindow.generate_treasure: result: {result}.")
 
+
+
     @staticmethod
-    def _get_table_result(table, coin_ws, roll):
+    def _parse_coin_result(result):
+        pass
+
+
+    @staticmethod
+    def _get_table_result(table, ws, roll):
         """
         This static method takes the roll integer, finds the value in the dXX columns
         that contains that value (or is in the range of values) and returns the
         corresponding result text.
+        This method needs the name of worksheet sent to it in case there is an error
+        in the table content that prevents this method from returning a str from
+        the table based on the roll.
         :param table: pandas Dataframe
+        :param ws: str
         :param roll: int
         :return: str
         """
@@ -214,7 +225,7 @@ class TreasureWindow(QMainWindow):
                 roll_idx = idx
                 break
         if roll_idx is None:
-            error_msg = (f"TreasureWindow._get_table_result: {coin_ws} is invalid. "
+            error_msg = (f"TreasureWindow._get_table_result: {ws} is invalid. "
                          f"Returning empty coin treasure.")
             QMessageBox.critical(error_msg)
             result = "no coins"
