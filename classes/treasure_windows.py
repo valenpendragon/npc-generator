@@ -188,10 +188,11 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow.generate_treasure: coin_die: {coin_die}")
         print(f"TreasureWindow.generate_treasure: dice_info: {dice_info}. "
               f"dice_size: {dice_size}. coin_result: {coin_result}.")
-        result = self._get_table_result(coin_table, coin_result)
+        result = self._get_table_result(coin_table, coin_ws, coin_result)
+        print(f"TreasureWindow.generate_treasure: result: {result}.")
 
     @staticmethod
-    def _get_table_result(table, roll):
+    def _get_table_result(table, coin_ws, roll):
         """
         This static method takes the roll integer, finds the value in the dXX columns
         that contains that value (or is in the range of values) and returns the
@@ -205,6 +206,24 @@ class TreasureWindow(QMainWindow):
         result_col = table[result_col_name]
         print(f"TreasureWindow._get_table_result: roll_col: {roll_col}.")
         print(f"TreasureWindow._get_table_result: result_col: {result_col}.")
+
+        roll_idx = None
+        for idx, item in roll_col.items():
+            m,n = return_range(item)
+            if m <= roll <= n:
+                roll_idx = idx
+                break
+        if roll_idx is None:
+            error_msg = (f"TreasureWindow._get_table_result: {coin_ws} is invalid. "
+                         f"Returning empty coin treasure.")
+            QMessageBox.critical(error_msg)
+            result = "no coins"
+        else:
+            result = result_col.loc[roll_idx]
+
+        if result == "-":
+            result = "no coins"
+        return result
 
     @staticmethod
     def _get_cr_range(s):
