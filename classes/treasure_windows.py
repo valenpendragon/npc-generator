@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 import openpyxl
 from entities import (Treasure, OtherWealth, MagicItem,
-                      Coin, Gem, Valuable, Dice)
+                      Coin, Gem, Valuable, Dice, return_die_roll)
 from functions import return_range
 
 
@@ -188,15 +188,52 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow.generate_treasure: coin_die: {coin_die}")
         print(f"TreasureWindow.generate_treasure: dice_info: {dice_info}. "
               f"dice_size: {dice_size}. coin_result: {coin_result}.")
-        result = self._get_table_result(coin_table, coin_ws, coin_result)
-        print(f"TreasureWindow.generate_treasure: result: {result}.")
 
+        raw_coin_result = self._get_table_result(coin_table, coin_ws, coin_result)
+        print(f"TreasureWindow.generate_treasure: raw_coin_result: {raw_coin_result}.")
 
+        self._parse_coin_result(raw_coin_result)
+        print(f"TreasureWindow.generate_treasure: Coin Treasure completed.")
 
-    @staticmethod
-    def _parse_coin_result(result):
-        pass
+    def _parse_coin_result(self, raw_coin_result):
+        """
+        This method takes a string in the format: {value} ({dice combo} x
+        {number}) {currency type} . The format can appear multiple times with a comma separating each
+        set. It will return the final value computed by rolling the correct dice and
+        performing the calculations on each such string. It will then add the correct
+        Coin objects to self.treasure.
+        :param raw_coin_result: str
+        :return: None
+        """
+        coin_results = raw_coin_result.split(', ')
+        print(f"TreasureWindow._parse_coin_result: coin_results: {coin_results}.")
 
+        # Clean up the results to make the numbers easier to find.
+        for idx, result in enumerate(coin_results):
+            coin_results[idx] = result.replace(",", "")
+
+        # Build a new dataframe.
+        dice = []
+        numbers = []
+        currency = []
+        for result in coin_results:
+            currency.append(result[-2:])
+            result = result[:-4]
+            l_paren = result.index('(')
+            x_loc = result.index('x')
+            dice.append(result[l_paren + 1:x_loc])
+            numbers.append(int(result[x_loc + 2:]))
+
+        print(f"TreasureWindow._parse_coin_result")
+
+        for i in range(len(coin_results)):
+            die_roll = return_die_roll(dice[i])
+            total = die_roll * numbers[i]
+            coin = Coin(number=total, type=currency[i])
+            self.treasure.add_item(coin)
+            print(f"TreasureWindow:_parse_coin_result: treasure; "
+                  f"{self.treasure}.")
+        print(f"TreasureWindow._parse_coin_result: Process completed.")
 
     @staticmethod
     def _get_table_result(table, ws, roll):

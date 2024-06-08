@@ -112,6 +112,28 @@ class Dice:
             return sum(rolls)
 
 
+# Useful functions to help use Dice are below.
+def return_die_roll(s):
+    """
+    This function takes a string in format ndm or nDm where n and m are
+    integers. It will return the die roll called for.
+    :param s:
+    :return: int
+    """
+    s = s.lower()
+    l = s.split('d')
+    try:
+        n = int(l[0])
+        m = int(l[1])
+    except ValueError:
+        error_msg = (f"return_die_roll: The string provided must be in the "
+                     f"format 'ndm' or 'nDm' where n and m are integers. The"
+                     f"string supplied is {s}.")
+        raise ValueError(error_msg)
+
+    return Dice(m, dice_number=n).roll()
+
+
 if __name__ == "__main__":
     d6 = Dice(6)
     d8 = Dice(8)
@@ -143,3 +165,5 @@ if __name__ == "__main__":
     print(f"main: Roll 5d6, drop 2 lowest: {roll_5d6_drop_lowest_2.roll()}")
     roll_5d6_drop_highest_2 = Dice(6, dice_number=5, drop_number=2, highest=False)
     print(f"main: Roll 5d6, drop 2 lowest: {roll_5d6_drop_highest_2.roll()}")
+    print(f"main: Testing return_die_roll(2d6): {return_die_roll('2d6')}")
+    print(f"main: Testing return_die_roll(3d10): {return_die_roll('3d10')}")
