@@ -186,7 +186,8 @@ class TreasureWindow(QMainWindow):
         raw_coin_result = self._get_table_result(coin_table, coin_ws, coin_result)
         print(f"TreasureWindow.generate_treasure: raw_coin_result: {raw_coin_result}.")
 
-        self._parse_coin_result(raw_coin_result)
+        if raw_coin_result is not None:
+            self._parse_coin_result(raw_coin_result)
         print(f"TreasureWindow.generate_treasure: Coin Treasure completed.")
 
         # Get the correct worksheet for magic items to include in treasures.
@@ -201,7 +202,9 @@ class TreasureWindow(QMainWindow):
 
         raw_magic_result = self._get_table_result(magic_table, magic_ws, magic_result)
         print(f"TreasureWindow.generate_treasure: raw_magic_result: {raw_magic_result}.")
-        self._parse_magic_items(raw_magic_result)
+
+        if raw_magic_result is not None:
+            self._parse_magic_items(raw_magic_result)
 
     def _parse_magic_items(self, magic_result):
         """
@@ -212,11 +215,19 @@ class TreasureWindow(QMainWindow):
         :return: None, all activity changes self.treasure attribute
         """
         magic_list = magic_result.split(', ')
-        print(f"TreasureWindow._parse_magic_items: magic_list")
+        print(f"TreasureWindow._parse_magic_items: magic_list; {magic_list}.")
 
         rolls = []
         tables = []
 
+        for item in magic_list:
+            item = item.rstrip()
+            print(f"TreasureWindow._parse_magic_items: item: {item}.")
+            item = item.lower().replace('.', '').replace(':', '')
+            roll_idx = item.index("r") - 1
+            rolls.append(item[:roll_idx])
+            num_idx = item.index('#') + 1
+            tables.append(int(item[num_idx:]))
         print(f"TreasureWindow._parse_magic_items: rolls: {rolls}. tables: {tables}.")
 
     @staticmethod
