@@ -201,7 +201,23 @@ class TreasureWindow(QMainWindow):
 
         raw_magic_result = self._get_table_result(magic_table, magic_ws, magic_result)
         print(f"TreasureWindow.generate_treasure: raw_magic_result: {raw_magic_result}.")
+        self._parse_magic_items(raw_magic_result)
 
+    def _parse_magic_items(self, magic_result):
+        """
+        This method takes the string describing how to roll for the magic items, parses it
+        down into number of rolls and tables to roll against. It, then, makes the desires
+        rolls on the new tables and adds the results to self.treasure. There is no output.
+        :param magic_result: str
+        :return: None, all activity changes self.treasure attribute
+        """
+        magic_list = magic_result.split(', ')
+        print(f"TreasureWindow._parse_magic_items: magic_list")
+
+        rolls = []
+        tables = []
+
+        print(f"TreasureWindow._parse_magic_items: rolls: {rolls}. tables: {tables}.")
 
     @staticmethod
     def _extract_dice_roll_dice(table):
@@ -243,6 +259,8 @@ class TreasureWindow(QMainWindow):
         numbers = []
         currency = []
         for result in coin_results:
+            result = result.rstrip()
+            print(f"TreasureWindow._parse_coin_result: result: {result}. ")
             currency.append(result[-2:])
             result = result[:-4]
             l_paren = result.index('(')
@@ -250,7 +268,8 @@ class TreasureWindow(QMainWindow):
             dice.append(result[l_paren + 1:x_loc])
             numbers.append(int(result[x_loc + 2:]))
 
-        print(f"TreasureWindow._parse_coin_result")
+        print(f"TreasureWindow._parse_coin_result: dice: {dice}. numbers: {numbers}. "
+              f"currency: {coin_results}")
 
         for i in range(len(coin_results)):
             die_roll = return_die_roll(dice[i])
