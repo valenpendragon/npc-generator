@@ -195,8 +195,13 @@ class TreasureWindow(QMainWindow):
         # Generate the magic treasure from the table.
         magic_table = self.tables[cr_wb_name][magic_ws]
         magic_result = self._extract_dice_roll_dice(magic_table)
+        print(f"TreasureWindow.generate_treasure: magic_ws: {magic_ws}.")
         print(f"TreasureWindow.generate_treasure: magic_table: {magic_table}.")
         print(f"TreasureWindow.generate_treasure: magic_result: {magic_result}.")
+
+        raw_magic_result = self._get_table_result(magic_table, magic_ws, magic_result)
+        print(f"TreasureWindow.generate_treasure: raw_magic_result: {raw_magic_result}.")
+
 
     @staticmethod
     def _extract_dice_roll_dice(table):
