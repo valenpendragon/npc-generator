@@ -212,7 +212,7 @@ class TreasureWindow(QMainWindow):
         for idx, result in enumerate(coin_results):
             coin_results[idx] = result.replace(",", "")
 
-        # Build a new dataframe.
+        # Convert that results into actual coin numbers.
         dice = []
         numbers = []
         currency = []
@@ -234,6 +234,8 @@ class TreasureWindow(QMainWindow):
             print(f"TreasureWindow:_parse_coin_result: treasure; "
                   f"{self.treasure}.")
         print(f"TreasureWindow._parse_coin_result: Process completed.")
+
+
 
     @staticmethod
     def _get_table_result(table, ws, roll):
