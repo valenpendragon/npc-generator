@@ -179,21 +179,42 @@ class TreasureWindow(QMainWindow):
 
         # Generate the coin treasure from it.
         coin_table = self.tables[cr_wb_name][coin_ws]
-        dice_info = coin_table.columns[0].lower()
-        dice_size = int(dice_info.replace('d', ''))
-        coin_die = Dice(dice_size)
-        coin_result = coin_die.roll()
-
-        print(f"TreasureWindow.generate_treasure: coin_table: {coin_table}")
-        print(f"TreasureWindow.generate_treasure: coin_die: {coin_die}")
-        print(f"TreasureWindow.generate_treasure: dice_info: {dice_info}. "
-              f"dice_size: {dice_size}. coin_result: {coin_result}.")
+        coin_result = self._extract_dice_roll_dice(coin_table)
+        print(f"TreasureWindow.generate_treasure: coin_table: {coin_table}.")
+        print(f"TreasureWindow.generate_treasure: coin_result: {coin_result}.")
 
         raw_coin_result = self._get_table_result(coin_table, coin_ws, coin_result)
         print(f"TreasureWindow.generate_treasure: raw_coin_result: {raw_coin_result}.")
 
         self._parse_coin_result(raw_coin_result)
         print(f"TreasureWindow.generate_treasure: Coin Treasure completed.")
+
+        # Get the correct worksheet for magic items to include in treasures.
+        magic_ws = self._return_ws_name('magic', cr, cr_wb_name)
+
+        # Generate the magic treasure from the table.
+        magic_table = self.tables[cr_wb_name][magic_ws]
+        magic_result = self._extract_dice_roll_dice(magic_table)
+        print(f"TreasureWindow.generate_treasure: magic_table: {magic_table}.")
+        print(f"TreasureWindow.generate_treasure: magic_result: {magic_result}.")
+
+    @staticmethod
+    def _extract_dice_roll_dice(table):
+        """
+        This static method requires a treasure table that has the format in which the
+        first column is the dice to use and rolled ranges. It will return the dice roll,
+        an integer.
+        :param table: pd.DataFrame
+        :return: int
+        """
+        dice_info = table.columns[0].lower()
+        dice_size = int(dice_info.replace('d', ''))
+        die = Dice(dice_size)
+        roll = die.roll()
+        print(f"TreasureWindow._extract_dice_roll_dice: dice_info: {dice_info}. "
+              f"dice_size: {dice_size}. roll: {roll}.")
+        print(f"TreasureWindow._extract_dice_roll_dice: \ndie: {die}.")
+        return roll
 
     def _parse_coin_result(self, raw_coin_result):
         """
@@ -234,8 +255,6 @@ class TreasureWindow(QMainWindow):
             print(f"TreasureWindow:_parse_coin_result: treasure; "
                   f"{self.treasure}.")
         print(f"TreasureWindow._parse_coin_result: Process completed.")
-
-
 
     @staticmethod
     def _get_table_result(table, ws, roll):
