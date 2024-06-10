@@ -223,6 +223,7 @@ class TreasureWindow(QMainWindow):
         for item in magic_list:
             item = item.rstrip()
             print(f"TreasureWindow._parse_magic_items: item: {item}.")
+
             item = item.lower().replace('.', '').replace(':', '')
             roll_idx = item.index("r") - 1
             rolls.append(item[:roll_idx])
@@ -231,6 +232,21 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow._parse_magic_items: rolls: {rolls}. tables: {tables}.")
 
         # Parse rolls looking for non-integers, since these require dice rolls.
+        for idx, item in enumerate(rolls):
+            match item:
+                case int():
+                    continue
+                case str():
+                    rolls[idx] = self._extract_dice_roll_from_text_return_result(item)
+                case _:
+                    error_msg = (f"TreasureWindow._parse_magic_items: magic item table "
+                                 f"has an invalid format. There are variable types, "
+                                 f"included that are not supported by this software, "
+                                 f"{type(item)}. Only string and integers are supported."
+                                 f"Returning zero for this input.")
+                    QMessageBox.critical(self, error_msg)
+                    rolls[idx] = 0
+        print(f"TreasureWindow._parse_magic_items: rolls {rolls}. tables: {tables}.")
 
     def _extract_dice_roll_from_text_return_result(self, s):
         """
@@ -326,8 +342,7 @@ class TreasureWindow(QMainWindow):
             total = die_roll * numbers[i]
             coin = Coin(number=total, type=currency[i])
             self.treasure.add_item(coin)
-            print(f"TreasureWindow:_parse_coin_result: treasure; "
-                  f"{self.treasure}.")
+            print(f"TreasureWindow:_parse_coin_result: treasure: {self.treasure}.")
         print(f"TreasureWindow._parse_coin_result: Process completed.")
 
     @staticmethod
