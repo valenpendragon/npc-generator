@@ -179,7 +179,7 @@ class TreasureWindow(QMainWindow):
 
         # Generate the coin treasure from it.
         coin_table = self.tables[cr_wb_name][coin_ws]
-        coin_result = self._extract_dice_roll_dice(coin_table)
+        coin_result = self._extract_dice_from_table_header_return_result(coin_table)
         print(f"TreasureWindow.generate_treasure: coin_table: {coin_table}.")
         print(f"TreasureWindow.generate_treasure: coin_result: {coin_result}.")
 
@@ -195,7 +195,7 @@ class TreasureWindow(QMainWindow):
 
         # Generate the magic treasure from the table.
         magic_table = self.tables[cr_wb_name][magic_ws]
-        magic_result = self._extract_dice_roll_dice(magic_table)
+        magic_result = self._extract_dice_from_table_header_return_result(magic_table)
         print(f"TreasureWindow.generate_treasure: magic_ws: {magic_ws}.")
         print(f"TreasureWindow.generate_treasure: magic_table: {magic_table}.")
         print(f"TreasureWindow.generate_treasure: magic_result: {magic_result}.")
@@ -230,8 +230,11 @@ class TreasureWindow(QMainWindow):
             tables.append(int(item[num_idx:]))
         print(f"TreasureWindow._parse_magic_items: rolls: {rolls}. tables: {tables}.")
 
+        # Parse rolls looking for non-integers, since these require dice rolls.
+
+
     @staticmethod
-    def _extract_dice_roll_dice(table):
+    def _extract_dice_from_table_header_return_result(table):
         """
         This static method requires a treasure table that has the format in which the
         first column is the dice to use and rolled ranges. It will return the dice roll,
