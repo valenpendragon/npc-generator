@@ -232,6 +232,42 @@ class TreasureWindow(QMainWindow):
 
         # Parse rolls looking for non-integers, since these require dice rolls.
 
+    def _extract_dice_roll_from_text_return_result(self, s):
+        """
+        This static method accepts a string in the format ndm or nDm, where n and m are
+        integers separated by the letter d or D. It converts this into Dice(m, dice_number=n)
+        and returns Dice.roll(). Any deviation from this format results will be trapped,
+        popup a critical message, and a zero returned as a result.
+        :param s: str
+        :return: int
+        """
+        s = s.lower()
+        l = s.split('d')
+        print(f"TreasureWindow._extract_dice_roll_from_text_return_result: s: {s}. l: {l}.")
+        # There should be exactly 2 items, both strings that can be converted into integers.
+        if len(l) != 2:
+            error_msg = (f"TreasureWindow._extract_dice_roll_from_text_return_result: A "
+                         f"string with an invalid format, {s}, was sent to this method. "
+                         f"Format must be 'ndm' or 'nDm', when n and m are integers.")
+            QMessageBox.critical(self, error_msg)
+            return 0
+        try:
+            n = int(l[0])
+            m = int(l[1])
+        except ValueError:
+            error_msg = (f"TreasureWindow._extract_dice_roll_from_text_return_result: A "
+                         f"string with an invalid format, {s}, was sent to this method. "
+                         f"Format must be 'ndm' or 'nDm', when n and m are integers.")
+            QMessageBox.critical(self, error_msg)
+            return 0
+
+        die = Dice(m, dice_number=n)
+        result = die.roll()
+        print(f"TreasureWindow._extract_dice_roll_from_text_return_result: "
+              f"n: {n}. m: {m}. result: {result}.")
+        print(f"TreasureWindow._extract_dice_roll_from_text_return_result: die: {die}.")
+        return result
+
 
     @staticmethod
     def _extract_dice_from_table_header_return_result(table):
