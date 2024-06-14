@@ -12,7 +12,7 @@ import numpy as np
 import openpyxl
 from entities import (Treasure, OtherWealth, MagicItem,
                       Coin, Gem, Valuable, Dice, return_die_roll)
-from functions import return_range
+from functions import return_range, check_string
 
 
 class TreasureWindow(QMainWindow):
@@ -233,19 +233,27 @@ class TreasureWindow(QMainWindow):
 
         # Parse rolls looking for non-integers, since these require dice rolls.
         for idx, item in enumerate(rolls):
-            match item:
-                case int():
-                    continue
-                case str():
+            if isinstance(item, int):
+                continue
+            elif isinstance(item, str):
+                try:
+                    print(f"TreasureWindow._parse_magic_items: testing string {item}.")
+                    n = int(item)
+                except ValueError:
+                    print(f"TreasureWindow._parse_magic_items: rolling the dice "
+                          f"specified in {item}.")
                     rolls[idx] = self._extract_dice_roll_from_text_return_result(item)
-                case _:
-                    error_msg = (f"TreasureWindow._parse_magic_items: magic item table "
-                                 f"has an invalid format. There are variable types, "
-                                 f"included that are not supported by this software, "
-                                 f"{type(item)}. Only string and integers are supported."
-                                 f"Returning zero for this input.")
-                    QMessageBox.critical(self, error_msg)
-                    rolls[idx] = 0
+                else:
+                    print(f"TreasureWindow._parse_magic_items: {item} is integer {n}.")
+                    rolls[idx] = n
+            else:
+                error_msg = (f"TreasureWindow._parse_magic_items: magic item table "
+                             f"has an invalid format. There are variable types, "
+                             f"included that are not supported by this software, "
+                             f"{type(item)}. Only string and integers are supported."
+                             f"Returning zero for this input.")
+                QMessageBox.critical(self, 'Trappable Error', error_msg)
+                rolls[idx] = 0
         print(f"TreasureWindow._parse_magic_items: rolls {rolls}. tables: {tables}.")
 
     def _extract_dice_roll_from_text_return_result(self, s):
@@ -265,7 +273,7 @@ class TreasureWindow(QMainWindow):
             error_msg = (f"TreasureWindow._extract_dice_roll_from_text_return_result: A "
                          f"string with an invalid format, {s}, was sent to this method. "
                          f"Format must be 'ndm' or 'nDm', when n and m are integers.")
-            QMessageBox.critical(self, error_msg)
+            QMessageBox.critical(self, 'Trappable Error', error_msg)
             return 0
         try:
             n = int(l[0])
@@ -274,7 +282,7 @@ class TreasureWindow(QMainWindow):
             error_msg = (f"TreasureWindow._extract_dice_roll_from_text_return_result: A "
                          f"string with an invalid format, {s}, was sent to this method. "
                          f"Format must be 'ndm' or 'nDm', when n and m are integers.")
-            QMessageBox.critical(self, error_msg)
+            QMessageBox.critical(self, 'Trappable Error', error_msg)
             return 0
 
         die = Dice(m, dice_number=n)
@@ -328,14 +336,28 @@ class TreasureWindow(QMainWindow):
             result = result.rstrip()
             print(f"TreasureWindow._parse_coin_result: result: {result}. ")
             currency.append(result[-2:])
-            result = result[:-4]
             l_paren = result.index('(')
-            x_loc = result.index('x')
-            dice.append(result[l_paren + 1:x_loc])
-            numbers.append(int(result[x_loc + 2:]))
+            r_paren = result.index(')')
+            coin_amt = result[l_paren+1:r_paren]
+            print(f"TreasureWindow._parse_coin_result: l_paren: {l_paren}. r_paren: "
+                  f"{r_paren}. coin_amt: {coin_amt}.")
+            try:
+                print(f"TreasureWindow._parse_coin_result: testing for x in result, "
+                      f"{result}.")
+                x_loc = result.index('x')
+            except ValueError:
+                print(f"TreasureWindow._parse_coin_result: x is not present. Setting "
+                      f"numbers to 1 and adding coin_amt to dice.")
+                dice.append(coin_amt)
+                numbers.append(1)
+            else:
+                print(f"TreasureWindow._parse_coin_result: x is present. Slicing out "
+                      f"dice and number from result.")
+                dice.append(result[l_paren+1:x_loc])
+                numbers.append(int(result[x_loc+2:r_paren]))
 
         print(f"TreasureWindow._parse_coin_result: dice: {dice}. numbers: {numbers}. "
-              f"currency: {coin_results}")
+              f"currency: {currency}.")
 
         for i in range(len(coin_results)):
             die_roll = return_die_roll(dice[i])
@@ -345,8 +367,7 @@ class TreasureWindow(QMainWindow):
             print(f"TreasureWindow:_parse_coin_result: treasure: {self.treasure}.")
         print(f"TreasureWindow._parse_coin_result: Process completed.")
 
-    @staticmethod
-    def _get_table_result(table, ws, roll):
+    def _get_table_result(self, table, ws, roll):
         """
         This static method takes the roll integer, finds the value in the dXX columns
         that contains that value (or is in the range of values) and returns the
@@ -374,7 +395,7 @@ class TreasureWindow(QMainWindow):
         if roll_idx is None:
             error_msg = (f"TreasureWindow._get_table_result: {ws} is invalid. "
                          f"Returning empty coin treasure.")
-            QMessageBox.critical(error_msg)
+            QMessageBox.critical(self, 'Trappable Error', error_msg)
             result = "no coins"
         else:
             result = result_col.loc[roll_idx]

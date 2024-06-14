@@ -247,6 +247,16 @@ def check_worksheet(table, stat_values=False) -> bool:
         return True
 
 
+def check_string(s):
+    """This function takes a utf-8 string and returns a
+    list of all of the characters that appear in it.
+    :param s: str
+    :return l: list of utf-8 characters
+    """
+    l = [ord(c) for c in list(s)]
+    return l
+
+
 if __name__ == "__main__":
     # Set test strings.
     l = ['blank', '10', '11-13', '12-10', '', 12, 12.4, '1-2-3' ]
