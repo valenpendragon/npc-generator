@@ -1,3 +1,4 @@
+import random
 import sys
 
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
@@ -256,6 +257,79 @@ class TreasureWindow(QMainWindow):
                 rolls[idx] = 0
         print(f"TreasureWindow._parse_magic_items: rolls {rolls}. tables: {tables}.")
 
+        # Convert table numbers to names of Magic Item tables.
+        magic_item_wb_names = []
+        for wb_name in self.tables:
+            if 'magic item' in wb_name.lower():
+                magic_item_wb_names.append(wb_name)
+            else:
+                continue
+        if magic_item_wb_names == []:
+            error_msg = (f"TreasureWindow._parse_magic_items: There are no magic item "
+                         f"tables in the data tables. This is a not a fatal error, but "
+                         f"it means that no specific magic items can be determined.")
+            QMessageBox.critical(self, 'Serious Error', error_msg)
+            return
+        else:
+            print(f"TreasureWindow._parse_magic_items: magic_item_wb_names: "
+                  f"{magic_item_wb_names}.")
+        no_magic_item_wbs = len(magic_item_wb_names)
+        for idx, num in enumerate(rolls):
+            for i in range(num):
+                print(f"TreasureWindow._parse_magic_items: idx: {idx}, num: {num}. "
+                      f"i: {i}.")
+                # Determine the workbook to use.
+                wb_choice = random.randint(0, no_magic_item_wbs - 1)
+                magic_item_wb_name = magic_item_wb_names[wb_choice]
+                magic_item_wb = self.tables[magic_item_wb_name]
+                print(f"TreasureWindow._parse_magic_items: wb_choice: {wb_choice}. "
+                      f"magic_item_wb_name: {magic_item_wb_name}.")
+                # print(f"TreasureWindow._parse_magic_items: magic_item_wb: {magic_item_wb}.")
+
+                # The format for Magic Item tables is '{wb_name} N', where N is an integer
+                # from 1 to 26. We have remove the file extension first.
+                n = int(tables[idx])
+                if magic_item_wb_name[-4] == '.':
+                    wb_name_sans_ext = magic_item_wb_name[:-4]
+                elif magic_item_wb_name[-5] == '.':
+                    wb_name_sans_ext = magic_item_wb_name[:-5]
+                else:
+                    error_msg = (f"TreasureWindow._parse_magic_items: The magic item "
+                                 f"workbook has an invalid name format. Only 3 or 4 "
+                                 f"letter extensions are supported.")
+                    QMessageBox.critical(self, 'Serious Error', error_msg)
+                    return
+
+                magic_item_ws_name = f"{wb_name_sans_ext} {n}"
+
+                try:
+                    magic_item_ws = magic_item_wb[magic_item_ws_name]
+                except KeyError:
+                    error_msg = (f"TreasureWindow._parse_magic_items: A magic item "
+                                 f"worksheet in workbook, {magic_item_wb} is not "
+                                 f"formatted correctly. Worksheet names must be formated as "
+                                 f"'{wb_name_sans_ext} N', where N is an integer between "
+                                 f"1 and 26. This is a not a fatal error, but it means "
+                                 f"that no specific magic items can be determined "
+                                 f"using this workbook.")
+                    QMessageBox.critical(self, 'Serious Error', error_msg)
+                    return
+
+                # magic_item_ws should be set at this point.
+                print(f"TreasureWindow._parse_magic_items: magic_item_ws_name: "
+                      f"{magic_item_ws_name}. magic_item_ws: "
+                      f"{magic_item_ws}.")
+                roll_result = self._extract_dice_from_table_header_return_result(
+                    magic_item_ws)
+                result = self._get_table_result(magic_item_ws, magic_item_ws_name,
+                                                roll_result)
+                print(f"TreasureWindow._parse_magic_items: roll_result: "
+                      f"{roll_result}. result: {result}.")
+                self.treasure.add_item(MagicItem(result))
+        print(f"TreasureWindow._parse_magic_items: self.treasure: {self.treasure}.")
+        print(f"TreasureWindow._parse_magic_items: Magic Item determination completed.")
+        return
+
     def _extract_dice_roll_from_text_return_result(self, s):
         """
         This static method accepts a string in the format ndm or nDm, where n and m are
@@ -291,7 +365,6 @@ class TreasureWindow(QMainWindow):
               f"n: {n}. m: {m}. result: {result}.")
         print(f"TreasureWindow._extract_dice_roll_from_text_return_result: die: {die}.")
         return result
-
 
     @staticmethod
     def _extract_dice_from_table_header_return_result(table):

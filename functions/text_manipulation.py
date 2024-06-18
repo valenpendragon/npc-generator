@@ -7,8 +7,10 @@ def return_range(s):
     """
     # First, check the string for integers and dashes.
     s = str(s)
+    print(f"return_range: s: {s}.")
     ctr = 0
     for c in s:
+        print(f"return_range: c: {c}. ctr: {ctr}")
         if c != '-':
             try:
                 n = int(c)
