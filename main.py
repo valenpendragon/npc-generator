@@ -77,8 +77,10 @@ class StartWindow(QMainWindow):
         # eyes, non-printable "dark theme" worksheets.
         missing_worksheets = {}
         corrupt_worksheets = {}
+        bad_format_worksheets = {}
         print(f"load_tables: missing_worksheets: {missing_worksheets}. "
-              f"corrupt_worksheets: {corrupt_worksheets}.")
+              f"corrupt_worksheets: {corrupt_worksheets}. "
+              f"bad_format_worksheets: {bad_format_worksheets}")
         print(f"load_tables: StartWindow.config: {self.config}.")
         for idx, wb_name in enumerate(self.workbook_names):
             wb_fp = self.workbook_fps[idx]
@@ -96,15 +98,15 @@ class StartWindow(QMainWindow):
                 for wb_fp in missing_worksheets.keys():
                     ws_list = ' '.join(str(e) for e in missing_worksheets[wb_fp])
                     missing_txt = f"For workbook, {wb_fp}, {ws_list}. {missing_txt}"
-                error_msg = f"Missing required worksheets, listed by workbook: " \
-                            f"{missing_txt}."
+                error_msg = (f"Missing required worksheets, listed by workbook: "
+                             f"{missing_txt}.")
 
             if corrupt_worksheets != {}:
                 for wb_fp in corrupt_worksheets.keys():
                     ws_list = ' '.join(str(e) for e in corrupt_worksheets[wb_fp])
                     corrupt_txt = f"For workbook, {wb_fp}, {ws_list}. {corrupt_txt}"
-                error_msg = f"Corrupt required worksheets, listed by workbook: " \
-                            f"{corrupt_txt}. {error_msg}"
+                error_msg = (f"Corrupt required worksheets, listed by workbook: "
+                             f"{corrupt_txt}. {error_msg}")
 
             QMessageBox.critical(self, "Fatal Error", error_msg)
             self.exit_app()
@@ -156,10 +158,10 @@ class StartWindow(QMainWindow):
             for wb_name in bad_worksheets.keys():
                 if bad_worksheets[wb_name] is not None:
                     ws_list = ', '.join(str(e) for e in bad_worksheets[wb_name])
-                    invalid_txt = f"For workbook, {wb_name}, these worksheets have an "\
-                                  f"invalid format: {ws_list}. {invalid_txt}"
-            error_msg = f"Invalid formatting of worksheets found, listed by workbook: "\
-                        f"{invalid_txt}"
+                    invalid_txt = (f"For workbook, {wb_name}, these worksheets have an "
+                                   f"invalid format: {ws_list}. {invalid_txt}")
+            error_msg = (f"Invalid formatting of worksheets found, listed by workbook: "
+                         f"{invalid_txt}")
             QMessageBox.critical(self, "Fatal Error", error_msg)
             self.exit_app()
         else:
@@ -173,8 +175,8 @@ class StartWindow(QMainWindow):
             with open(filepath, "r") as f:
                 content = f.read()
         except (FileNotFoundError, IOError):
-            error_msg = f"Configuration file, {filepath}, could not be" \
-                        f" read or does not exist."
+            error_msg = (f"Configuration file, {filepath}, could not be"
+                         f" read or does not exist.")
             QMessageBox.critical(self, "Fatal Error", error_msg)
             self.exit_app()
 
@@ -182,8 +184,8 @@ class StartWindow(QMainWindow):
             try:
                 json_content = json.loads(content)
             except json.decoder.JSONDecodeError:
-                error_msg = f"Configuration file, {filepath}, is not a " \
-                            f"valid JSON file or may be corrupted."
+                error_msg = (f"Configuration file, {filepath}, is not a "
+                             f"valid JSON file or may be corrupted.")
                 QMessageBox.critical(self, "Fatal Error", error_msg)
                 self.exit_app()
             else:
@@ -207,8 +209,8 @@ class StartWindow(QMainWindow):
         try:
             required_fp_dict = self.config["tables"]['required tables']
         except KeyError:
-            error_msg = f"Config file, {self.config_fp} is missing " \
-                        f"section for required tables."
+            error_msg = (f"Config file, {self.config_fp} is missing "
+                         f"section for required tables.")
             QMessageBox.critical(self, "Fatal Error", error_msg)
             self.exit_app()
         else:
@@ -218,8 +220,8 @@ class StartWindow(QMainWindow):
                                      required_fp_dict.keys()]
                 self.workbook_names = [wb_name for wb_name in required_fp_dict.keys()]
             except AttributeError:
-                error_msg = f"Config file, {self.config_fp} is missing required" \
-                            f"dictionary of workbooks."
+                error_msg = (f"Config file, {self.config_fp} is missing required"
+                             f"dictionary of workbooks.")
                 QMessageBox.critical(self, "Fatal Error", error_msg)
                 self.exit_app()
 

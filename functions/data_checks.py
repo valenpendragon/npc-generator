@@ -1,7 +1,7 @@
 import os.path
 import pandas as pd
 import numpy as np
-
+from entities import return_die_roll
 
 def roll_test(s):
     """
@@ -161,19 +161,13 @@ def find_workbooks(wb_fp_list):
 
 def check_worksheet(table, stat_values=False) -> bool:
     """
-    This function analyzes the table supplied to it. There may be index
-    columns which will be ignored. The focus is on roll columns and
-    description columns. The former should have a header indicating the
-    type of dice to be used. The latter is text describing a result. Either
-    column may have entries listed as None. For the roll column, that
-    indicates the result in the description is not possible. For the
-    description column, that means that the roll value or range produces
-    nothing. Note: A Dash in a column will be treated as a blank entry.
-
-    The roll columns are the part that requires carefully validation.
-    There can be blank values in a roll column, but numbers must be sequential
-    otherwise. There can be no duplication of values from row to row, no
-    overlaps, and no gaps. Otherwise, the table is not usable.
+    Most of the worksheets that will be used in tables should in the
+    format roll column followed by a description column. The roll
+    column must have a single die to head it. The rest should be
+    ranges of integer values separated by a single dash or a single
+    integer. Note: Although they appear to a integers, all of the
+    values in the worksheet, including single roll values must, in
+    fact be strings to parse correctly.
 
     stat_values is used to override the usual behavior of the function.
     Stat tables have a stat value from 1 to 30 and either a bonus/penalty
@@ -187,64 +181,90 @@ def check_worksheet(table, stat_values=False) -> bool:
         from 1 to 30
     :return: bool
     """
-    headers = table.columns
-    # Find the roll column first. All unnamed columns will be ignored.
-    # The order of the possible values ensures the largest match will
-    # be the first one found.
     if stat_values:
-        roll_header = 'Stat Value'
-        roll_type = 'd30'
+        pass
     else:
+        headers = table.columns
+        if len(headers) != 2:
+            print(f"check_worksheet: Invalid Format: Invalid number of columns: "
+                  f"{len(headers)}.")
+            return False
+        # Find the roll column first. All unnamed columns will be ignored.
+        # The order of the possible values ensures the largest match will
+        # be the first one found.
         possible_roll_values = ('d1000', 'd100', 'd30', 'd20',
                                 'd12', 'd10', 'd8', 'd6',
                                 'd4', 'd2')
-        roll_header = None
-        roll_type = None
-        for h in headers:
-            for v in possible_roll_values:
-                if v in h.lower().strip():
-                    roll_type = v
-                    roll_header = h
-                    break
-    if roll_header is None:
-        # There is no roll column that matches the criteria.
-        print("check_worksheet: No roll column found. Table is an invalid format.")
-        return False
-    else:
-        roll_column = table[roll_header]
-    roll_max = int(roll_type[1:])
-    print(f"check_worksheet: roll_header: {roll_header}. roll_type: {roll_type}. "
-          f"roll_max: {roll_max}. roll_column: {roll_column}.")
-    last_val = 0
-    for item in roll_column:
-        print(f"check_worksheet: last_val: {last_val}. item: {item}.")
-        if item is None or item == '-':
-            # Skip blank entries.
-            continue
+        roll_header, desc_header = tuple(headers)
+        roll_header_clean = roll_header.lower().strip()
+        print(f"check_worksheet: roll_header: {roll_header}. desc_header: "
+              f"{desc_header}. roll_header_clean: {roll_header_clean}.")
+
+        if roll_header_clean in possible_roll_values:
+            roll_type = roll_header.lower().strip()
+            roll_max = int(roll_type[1:])
+            print(f"check_worksheet: roll_max: {roll_max}.")
         else:
-            item_ck = roll_test(str(item))
-            print(f"check_worksheet: item_ck: {item_ck}.")
-            if item_ck[0] is False:
-                # If roll_test returned (False,), there is a bad entry in the
-                # roll column. 0 is also an invalid entry, since rolls start
-                # with 1.
+            if roll_header_clean[0] != 'd':
+                print(f"check_worksheet: Invalid Format: Roll column has an "
+                      f"invalid header, {roll_header}.")
                 return False
             else:
-                if last_val + 1 != item_ck[0]:
-                    # There is a gap or an overlap.
+                try:
+                    roll_max = int(roll_header_clean[1:])
+                except ValueError:
+                    print(f"check_worksheet: Invalid Format: Roll column has an "
+                          f"invalid header, {roll_header}.")
+                    return False
+        roll_column = table[roll_header]
+        desc_column = table[desc_header]
+
+        print(f"check_worksheet: roll_max: {roll_max}.")
+        print(f"check_worksheet: roll_column: {roll_column}.")
+        print(f"check_worksheet: desc_column: {desc_column}.")
+        last_val = 0
+        for item in roll_column:
+            print(f"check_worksheet: last_val: {last_val}. item: {item}.")
+            if item is None or item == '-':
+                # Skip blank entries.
+                continue
+            else:
+                item_ck = roll_test(str(item))
+                print(f"check_worksheet: item_ck: {item_ck}.")
+                if item_ck[0] is False:
+                    # If roll_test returned (False,), there is a bad entry in the
+                    # roll column. 0 is also an invalid entry, since rolls start
+                    # with 1.
+                    print(f"check_worksheet: Invalid Format: Item, {item_ck} has an "
+                          f"invalid format.")
                     return False
                 else:
-                    if len(item_ck) == 2:
-                        last_val = item_ck[1]
+                    if last_val + 1 != item_ck[0]:
+                        # There is a gap or an overlap.
+                        print(f"check_worksheet: Invalid Format: Item, {item_ck}, "
+                              f"creates a gap or an overlap. ")
+                        return False
                     else:
-                        last_val = item_ck[0]
-    print(f"check_worksheet: last_val: {last_val}. roll_max: {roll_max}.")
-    if last_val != roll_max:
-        # Either the values goes over the maximum dice value or under it. Either
-        # way, the roll column is invalid.
-        return  False
-    else:
-        return True
+                        if len(item_ck) == 2:
+                            last_val = item_ck[1]
+                        else:
+                            last_val = item_ck[0]
+        print(f"check_worksheet: last_val: {last_val}. roll_max: {roll_max}.")
+        if last_val != roll_max:
+            # Either the values goes over the maximum dice value or under it. Either
+            # way, the roll column is invalid.
+            gap = last_val - roll_max
+            print(f"check_worksheet: Invalid Format: Roll column has a gap of {gap} "
+                  f"between max die result of {roll_max} and the last value "
+                  f"{last_val}.")
+            return  False
+        else:
+            # Now, we need to determine if this is a treasure table. If so, we need
+            # to know which type. Coin tables have a very specific format.
+            if 'coin' in desc_header.lower().strip():
+                return _validate_coin_table_format(desc_column)
+            else:
+                return True
 
 
 def check_string(s):
@@ -255,6 +275,120 @@ def check_string(s):
     """
     l = [ord(c) for c in list(s)]
     return l
+
+
+def _validate_coin_table_format(coin_col: pd.Series):
+    """
+    This function checks the format of the descriptive column. The header format
+    is not important, but the entries in the columns must be strings comprised
+    of a single 'content' or multiple 'contents' separated by a comma followed by
+    a space. An 'entry' is a string having one of two formats:
+        i (jdk x l) 'currency type'
+        i (jdk) 'currency type'
+    where i, j, k, and l are integers, d an x are the actual letters 'd' and
+    'x', and 'currency' is a two letter abbreviation. While any two letters
+    for currency should parse correctly, sticking to 'pp', 'gp, 'ep', and
+    'cp' is recommended. Commas are permitted for large integers. The 'x' must
+    be bracketed by at least one space. The spaces around the 'x' are not
+    required. None of the letters are case-dependent, but all of them will
+    be rendered into lowercase when computing the coin results.
+
+    No coin result can be NoneType.
+
+    Example (multiple contents): 900 (2d8 x 100) gp, 500 (2d4 x 100) pp
+    Example (multiple contents): 700 (2d6 x 100) ep, 15 (6d6) gp
+    Example (single content): 4,500 (10d8 x 1,000) gp
+    Example (single content): 350(1d6 x 10) cp
+    Example (single content): 33 (6d10) sp
+
+    There can any number of contents per item in the series. but currency
+    types cannot appear more than once.
+
+    This function returns True if the format of the Series is correct,
+    False otherwise.
+    :param df: pd.Series
+    :return: bool
+    """
+
+    for raw_coin_result in coin_col:
+        if raw_coin_result is None:
+            print(f"_validate_coin_table_format: Invalid Format. Raw coin result "
+                  f"is NoneType which is invalid for any encounter. Even a peon "
+                  f"carries a few coppers.")
+            return False
+        raw_coin_result = raw_coin_result.rstrip()
+        coin_results = raw_coin_result.split(", ")
+
+        # Get rid of commas in large integers.
+        for idx, result in enumerate(coin_results):
+            coin_results[idx] = result.replace(",", "")
+
+        print(f"_validate_coin_table_format: item: {raw_coin_result}. "
+              f"item_list: {coin_results}.")
+
+        dice = []
+        numbers = []
+        currency = []
+        fudge_amts = []
+
+        for idx, result in enumerate(coin_results):
+            result = result.lower()
+            currency.append(result[-2:])
+            try:
+                l_paren = result.index('(')
+                r_paren = result.index(')')
+            except ValueError:
+                print(f"_validate_coin_table_format: Invalid Format: Item, "
+                      f"{raw_coin_result}, content, {coin_results[idx]}, is "
+                      f"missing at least one parentheses.")
+                return False
+            # roll_section needs to look like nd
+            roll_section = result[l_paren+1:r_paren]
+            fudge_amt = result[:l_paren]
+            try:
+                fudge_amts.append(int(fudge_amt))
+            except ValueError:
+                print(f"_validate_coin_table_format: Invalid Format: For item, "
+                      f"{raw_coin_result}, content, {coin_results[idx]}, first "
+                      f"{l_paren} characters must be integers.")
+                return False
+
+            try:
+                x_loc = result.index('x')
+            except ValueError:
+                print(f"_validate_coin_table_format: x is not present. Add 1 to "
+                      f"numbers and roll_section, {roll_section}, to dice.")
+                dice.append(roll_section)
+                numbers.append(1)
+            else:
+                dice.append(result[l_paren+1:x_loc])
+                no_test = result[x_loc+2:r_paren]
+                try:
+                    numbers.append(int(result[x_loc+2:r_paren]))
+                except ValueError:
+                    print(f"_validate_coin_table_format: Invalid Format: For item, "
+                          f"{raw_coin_result}, content, {coin_results[idx]}, number "
+                          f"{no_test} must be an integer.")
+                    return False
+                else:
+                    try:
+                        die_roll = return_die_roll(dice[idx])
+                    except ValueError:
+                        print(f"_validate_coin_table_format: Invalid Format: For item, "
+                              f"{raw_coin_result}, content, {coin_results[idx]} with "
+                              f"dice roll {dice[idx]} must be 'ndm' or 'nDm', where"
+                              f"n and m are integers and d/D is the utf-8 letter.")
+                        return False
+
+        # Final check: None of the currencies can be duplicates in a single result.
+        # This program will not add them all up.
+        currency_set = set(currency)
+        if len(currency_set) != len(currency):
+            print(f"_validate_coin_table_format: Invalid Format: Item, "
+                  f"{raw_coin_result} contains duplicate currency types "
+                  f"which is not supported by this software.")
+            return False
+    return True
 
 
 if __name__ == "__main__":
