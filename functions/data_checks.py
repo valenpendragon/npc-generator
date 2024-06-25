@@ -182,7 +182,8 @@ def check_worksheet(table, stat_values=False) -> bool:
     :return: bool
     """
     if stat_values:
-        pass
+        # This is a stopgap until this feature is programmed.
+        return True
     else:
         headers = table.columns
         if len(headers) != 2:
