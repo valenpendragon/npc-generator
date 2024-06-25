@@ -28,9 +28,10 @@ def roll_test(s):
         try:
             low = int(l[0])
         except ValueError:
-            error_msg = f"roll_test: {s} has invalid format. Must " \
-                        f"m or m-n, where m,n are positive integers " \
-                        f"such m <= n."
+            error_msg = (f"roll_test: Attempt to convert low part of {s} "
+                         f"failed because it has an invalid format. Format is "
+                         f"m or m-n, where m,n are positive integers "
+                         f"such m <= n. 0, 00, or 000 will fail the test.")
             print(error_msg)
             return (False,)
         else:
@@ -38,16 +39,19 @@ def roll_test(s):
                 try:
                     high = int(l[1])
                 except ValueError:
-                    error_msg = f"roll_test: {s} has invalid format. Must " \
-                                f"m or m-n, where m,n are positive integers " \
-                                f"such m <= n."
+                    error_msg = (f"roll_test: Attempt to convert high part of {s} "
+                                 f"failed because it has an invalid format. Format is "
+                                 f"m or m-n, where m,n are positive integers "
+                                 f"such m <= n. 0, 00, or 000 will fail the test.")
                     print(error_msg)
                     return (False,)
                 else:
                     if low > high:
-                        error_msg = f"roll_test: {s} has invalid format. Must " \
-                                    f"m or m-n, where m,n are positive integers " \
-                                    f"such m <= n."
+                        error_msg = (f"roll_test: Sequence test of {s} failed "
+                                     f"because it has invalid format. Format is "
+                                     f"m or m-n, where m,n are positive integers "
+                                     f"such m <= n. Do not use 0, 00, or 000 for "
+                                     f"end values.")
                         print(error_msg)
                         return (False,)
                     elif low == high:
@@ -57,9 +61,11 @@ def roll_test(s):
             elif len(l) == 1:
                 return (low,)
             else:
-                error_msg = f"roll_test: {s} has invalid format. Must " \
-                            f"m or m-n, where m,n are positive integers " \
-                            f"such m <= n."
+                error_msg = (f"roll_test: Integer test failes because {s} has "
+                             f"invalid format. Must be"
+                             f"m or m-n, where m,n are positive integers "
+                             f"such m <= n. Do not use 0, 00, or 000 for "
+                             f"end values.")
                 print(error_msg)
                 return (False,)
     else:
