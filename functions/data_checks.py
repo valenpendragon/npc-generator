@@ -3,6 +3,52 @@ import pandas as pd
 import numpy as np
 from entities import return_die_roll
 
+
+def fix_worksheet(table: pd.DataFrame):
+    """
+    An error in Pandas conversion of some worksheets can result in first
+    item in the roll_column being interpreted as a np.NaN and converted
+    to None value. This only seems to happen when a '1' appears in the
+    0 element of the series. But, it has to be identified and corrected
+    before checking the worksheet for valid format. This was only seen in
+    magic items tables which have 2 columns, rolls and descriptions/items.
+    This function returns the corrected table (or the original if nothing
+    needs to be corrected.
+    :param table:
+    :return: pd.DataFrame
+    """
+    cols = table.columns
+    roll_col_name = ''
+    col_no = None
+    print(f"fix_worksheet: table: {table}.")
+    print(f"fix_worksheet: cols: {cols}.")
+    for idx, col_name in enumerate(cols):
+        possible_dice = ['d'+str(num) for num in range(100, 1001, 100)]
+        print(f"fix_worksheet: possible_dice: {possible_dice}.")
+        print(f"fix_worksheet: idx: {idx}. col_name: {col_name}.")
+        for die in possible_dice:
+            print(f"fix_worksheet: die: {die}.")
+            if die == col_name.lower():
+                roll_col_name = col_name
+                col_no = idx
+                print(f"fix_worksheet: roll_col_name: {roll_col_name}. "
+                      f"col_no: {col_no}.")
+                break
+            else:
+                continue
+    print(f"fix_worksheet: roll_col_name: {roll_col_name}. col_no: {col_no}.")
+    if roll_col_name == '' or col_no is None or len(cols) != 2:
+        # This table is not in the format for this function to do anything.
+        print(f"fix_worksheet: This table does not have format that needs data "
+              f"repair. Returning original table.")
+        return table
+    else:
+        if table.iloc[col_no, 0] is None:
+            table.iloc[col_no, 0] = 1
+            print(f"fix_worksheet: updated table: {table}.")
+        return table
+
+
 def roll_test(s):
     """
     This function examines a string to see if it is a single

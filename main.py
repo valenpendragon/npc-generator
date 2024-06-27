@@ -3,7 +3,8 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QLabel, QHBoxLayout)
 
 from classes import TreasureWindow
-from functions import (find_workbooks, check_workbook, check_worksheet)
+from functions import (find_workbooks, check_workbook, check_worksheet,
+                       fix_worksheet)
 import sys
 import json
 import os
@@ -120,8 +121,18 @@ class StartWindow(QMainWindow):
             for ws_name in ws_list:
                 df = pd.read_excel(wb_fp, sheet_name=ws_name, index_col=0,
                                    na_values=True)
-                self.tables[wb_name][ws_name] = df.replace(to_replace=np.nan,
-                                                           value=None)
+                df_pass_1 = df.replace(to_replace=np.nan, value=None)
+                # The following is a fix for an error in some magic item
+                # table conversions that changes a row in the form:
+                # '1', 'description' or 1, 'description' to
+                # np.NaN, 'description'. df_pass_1 then turns that
+                # 1 value into None.
+                if 'magic item' in ws_name.lower():
+                    df_pass_2 = fix_worksheet(df_pass_1)
+                    self.tables[wb_name][ws_name] = df_pass_2
+                else:
+                    self.tables[wb_name][ws_name] = df_pass_1
+
             f.close()
 
         self.statusbar.showMessage("Tables loaded. Application is ready.")
@@ -139,6 +150,10 @@ class StartWindow(QMainWindow):
             bad_worksheets[wb_name] = None
             bad_ws_list = []
             for ws_name in self.tables[wb_name].keys():
+                # An error in Pandas conversion of some worksheets can result in first
+                # item in the roll_column being interpreted as a np.NaN and converted
+                # to None value. This only seems to happen when a '1' appears in the
+                # 0 element of the series.
                 if check_worksheet(self.tables[wb_name][ws_name], stat_override):
                     print(f"load_tables: Validated worksheet, {ws_name}.")
                 else:
