@@ -211,7 +211,7 @@ def find_workbooks(wb_fp_list):
     return data
 
 
-def check_worksheet(table, stat_values=False) -> bool:
+def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
     """
     Most of the worksheets that will be used in tables should in the
     format roll column followed by a description column. The roll
@@ -225,56 +225,54 @@ def check_worksheet(table, stat_values=False) -> bool:
     Stat tables have a stat value from 1 to 30 and either a bonus/penalty
     value in the second column or a description.
 
+    other_valuables is a bool used to override the usual behavior of this
+    function. Gem and Other Valuables Tables have a 3 column format, with
+    a roll column (dice type header with single values or a range of two
+    integers in the Series), a 'gemstone' or 'valuable' column (header
+    transformed to lowercase matches 'gemstone' or 'valuable' with strings
+    for the Series values), and 'description' or 'example' column (header
+    transformed to lowercase matches 'description' or 'example' with strings
+    for the Series values).
+
     This function returns a bool, True if the worksheet is usable, False
     otherwise.
     :param table: pd.DataFrame
     :param stat_values: bool, defaults to False, used to override the
         usual behavior and treat the first column as a d30 stat, running
         from 1 to 30
+    :param other_valuables: bool, defaults to False, used to override the
+        behaviour and treat the format as 3-columns for gems or other
+        valuables
     :return: bool
     """
+    headers = table.columns
     if stat_values:
         # This is a stopgap until this feature is programmed.
         return True
-    else:
-        headers = table.columns
-        if len(headers) != 2:
-            print(f"check_worksheet: Invalid Format: Invalid number of columns: "
-                  f"{len(headers)}.")
+    elif other_valuables:
+        # These tables have one of two legit formats. Both share a column
+        # that handles a dice roll. The gems tables use a 'gemstone' column
+        # followed by a 'description' column. The second format uses a
+        # 'valuable' column, followed by an 'example' column.
+        if len(headers) != 3:
+            print(f"check_worksheet: Invalid Format: Invalid number of columns "
+                  f"for gem or other valuables tables: {len(headers)}. It should "
+                  f"be 3.")
             return False
-        # Find the roll column first. All unnamed columns will be ignored.
-        # The order of the possible values ensures the largest match will
-        # be the first one found.
-        possible_roll_values = ('d1000', 'd100', 'd30', 'd20',
-                                'd12', 'd10', 'd8', 'd6',
-                                'd4', 'd2')
-        roll_header, desc_header = tuple(headers)
-        roll_header_clean = roll_header.lower().strip()
-        print(f"check_worksheet: roll_header: {roll_header}. desc_header: "
-              f"{desc_header}. roll_header_clean: {roll_header_clean}.")
-
-        if roll_header_clean in possible_roll_values:
-            roll_type = roll_header.lower().strip()
-            roll_max = int(roll_type[1:])
-            print(f"check_worksheet: roll_max: {roll_max}.")
-        else:
-            if roll_header_clean[0] != 'd':
-                print(f"check_worksheet: Invalid Format: Roll column has an "
-                      f"invalid header, {roll_header}.")
-                return False
-            else:
-                try:
-                    roll_max = int(roll_header_clean[1:])
-                except ValueError:
-                    print(f"check_worksheet: Invalid Format: Roll column has an "
-                          f"invalid header, {roll_header}.")
-                    return False
+        return True
+    else:
+        if len(headers) != 2:
+            print(f"check_worksheet: Invalid Format: Invalid number of columns "
+                  f"for normal tables: {len(headers)}. It should be 2.")
+            return False
+        roll_max = _check_roll_column(headers)
+        roll_header = headers[0]
+        desc_header = headers[1]
         roll_column = table[roll_header]
         desc_column = table[desc_header]
-
         print(f"check_worksheet: roll_max: {roll_max}.")
-        print(f"check_worksheet: roll_column: {roll_column}.")
-        print(f"check_worksheet: desc_column: {desc_column}.")
+        print(f"check_worksheet: roll_header: {roll_header}. roll_column: {roll_column}.")
+        print(f"check_worksheet: desc_header: {desc_header}. desc_column: {desc_column}.")
         last_val = 0
         for item in roll_column:
             print(f"check_worksheet: last_val: {last_val}. item: {item}.")
@@ -318,6 +316,42 @@ def check_worksheet(table, stat_values=False) -> bool:
                 return _validate_coin_table_format(desc_column)
             else:
                 return True
+
+
+def _check_roll_column(cols: list):
+    """
+    This function receive a list of column headers and returns one that is a
+    roll column and returns either None if a valid roll header is not found
+    or the actual dice value as an integer.
+    :param cols:
+    :return:
+    """
+    # Roll column needs to be first column. If not, the format is invalid.
+    possible_roll_values = ('d1000', 'd100', 'd30', 'd20',
+                            'd12', 'd10', 'd8', 'd6',
+                            'd4', 'd2')
+    roll_header = cols[0]
+    roll_header_clean = roll_header.lower().strip()
+    print(f"_check_roll_column: roll_header: {roll_header}. "
+          f"roll_header_clean: {roll_header_clean}.")
+
+    if roll_header_clean in possible_roll_values:
+        roll_type = roll_header.lower().strip()
+        roll_max = int(roll_type[1:])
+        print(f"_check_roll_column: roll_max: {roll_max}.")
+    else:
+        if roll_header_clean[0] != 'd':
+            print(f"_check_roll_column: Invalid Format: Roll column has an "
+                  f"invalid header, {roll_header}.")
+            return None
+        else:
+            try:
+                roll_max = int(roll_header_clean[1:])
+            except ValueError:
+                print(f"_find_roll_column: Invalid Format: Roll column has an "
+                      f"invalid header, {roll_header}.")
+                return None
+    return roll_max
 
 
 def check_string(s):

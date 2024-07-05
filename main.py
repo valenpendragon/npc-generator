@@ -147,6 +147,10 @@ class StartWindow(QMainWindow):
             # The structure of character-related tables differs from the rest.
             # There is an override feature in check_worksheet that handles it.
             stat_override = 'character' in wb_name.lower()
+            # We need a second override value, gem_override, to warn check_worksheet()
+            # to use a 3 column format tables used for gems and other valuables.
+            gem_override = ('gem' in wb_name.lower()) or \
+                           ('other valuable' in wb_name.lower())
             bad_worksheets[wb_name] = None
             bad_ws_list = []
             for ws_name in self.tables[wb_name].keys():
@@ -154,7 +158,8 @@ class StartWindow(QMainWindow):
                 # item in the roll_column being interpreted as a np.NaN and converted
                 # to None value. This only seems to happen when a '1' appears in the
                 # 0 element of the series.
-                if check_worksheet(self.tables[wb_name][ws_name], stat_override):
+                if check_worksheet(self.tables[wb_name][ws_name], stat_override,
+                                   gem_override):
                     print(f"load_tables: Validated worksheet, {ws_name}.")
                 else:
                     bad_ws_list.append(ws_name)
