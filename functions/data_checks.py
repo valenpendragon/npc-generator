@@ -253,19 +253,27 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
         # These tables have one of two legit formats. Both share a column
         # that handles a dice roll. The gems tables use a 'gemstone' column
         # followed by a 'description' column. The second format uses a
-        # 'valuable' column, followed by an 'example' column.
+        # 'valuable' column, followed by an 'example' column. The text
+        # columns simply need to be non-empty so that something can be
+        # displayed in the GUI.
         if len(headers) != 3:
             print(f"check_worksheet: Invalid Format: Invalid number of columns "
                   f"for gem or other valuables tables: {len(headers)}. It should "
                   f"be 3.")
             return False
-        return True
+
     else:
         if len(headers) != 2:
             print(f"check_worksheet: Invalid Format: Invalid number of columns "
                   f"for normal tables: {len(headers)}. It should be 2.")
             return False
+
         roll_max = _check_roll_column(headers)
+        if roll_max is None:
+            print(f"check_worksheet: Invalid Format: First column is not a roll "
+                  f"column or has an invalid header: {headers[0]}.")
+            return False
+
         roll_header = headers[0]
         desc_header = headers[1]
         roll_column = table[roll_header]
@@ -488,7 +496,7 @@ if __name__ == "__main__":
     ws_list = ['Treasure For CR 0 Magic', 'Treasure For CRs 1-2 Coin',
                'Treasure For CRs 1-2 Magic', 'Treasure For CRs 3-4 Coin',
                'Treasure For CRs 3-4 Magic', 'Treasure for CR 0 Coin'
-               'Treasure For CR 0 Coin']
+               'Treasure For CR 0 Coin', 'Treasure For CR 5 Coin']
     f = pd.ExcelFile(wb_fp)
     tables = {}
     for ws in ws_list:
