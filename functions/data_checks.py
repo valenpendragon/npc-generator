@@ -261,7 +261,57 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
                   f"for gem or other valuables tables: {len(headers)}. It should "
                   f"be 3.")
             return False
+        roll_max = _check_roll_column(headers)
+        if roll_max is None:
+            print(f"check_worksheet: Invalid Format: First column is not a roll "
+                  f"column or has an invalid header: {headers[0]}.")
+            return False
 
+        # Next, we check the remaining headers for the correct format.
+        col2_header = headers[1].lower()
+        col3_header = headers[2].lower()
+        if 'gemstone' not in col2_header and 'valuable' not in col2_header:
+            print(f"check_worksheet: Invalid Format: Second column must contain "
+                  f"either 'gemstone' or 'valuable' to be valid. Instead, it "
+                  f"is {headers[1]}.")
+            return False
+        if 'description' not in col3_header and 'example' not in col3_header:
+            print(f"check_worksheet: Invalid Format: Second column must contain "
+                  f"either 'description' or 'example' to be valid. Instead, it "
+                  f"is {headers[2]}.")
+            return False
+
+        # We need to make sure that the 2nd and 3rd column headers agree.
+        if 'gemstone' in col2_header and 'description' not in col3_header:
+            print(f"check_worksheet: Invalid Format: Column 2 and 3 headers "
+                  f"do not agree on type of item. Column 2 is {headers[1]}, "
+                  f"but Column 3 header does not contain 'description. It "
+                  f"contains {headers[2]}.")
+            return False
+        if 'valuable' in col2_header and 'example' not in col3_header:
+            print(f"check_worksheet: Invalid Format: Column 2 and 3 headers "
+                  f"do not agree on type of item. Column 2 is {headers[1]}, "
+                  f"but Column 3 header does not contain 'example'. It "
+                  f"contains {headers[2]}.")
+            return False
+
+        # The headers are correct. There cannot be any NoneType or blank ('')
+        # contents in the Series for the second and third header.
+        col2_series = table[headers[1]]
+        col3_series = table[headers[2]]
+        col2_nulls = col2_series.dropna()
+        col3_nulls = col3_series.dropna()
+        if len(col2_nulls) != len(col2_series):
+            print(f"check_worksheet: Invalid Format: Column 2 cannot have "
+                  f"NaN, null, or NoneType entries. A blank string is "
+                  f"acceptable, but not recommended.")
+            return False
+        if len(col3_nulls) != len(col3_series):
+            print(f"check_worksheet: Invalid Format: Column 3 cannot have "
+                  f"NaN, null, or NoneType entries. A blank string is "
+                  f"acceptable, but not recommended.")
+            return False
+        return True
     else:
         if len(headers) != 2:
             print(f"check_worksheet: Invalid Format: Invalid number of columns "
