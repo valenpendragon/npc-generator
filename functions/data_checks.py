@@ -74,7 +74,7 @@ def roll_test(s):
         try:
             low = int(l[0])
         except ValueError:
-            error_msg = (f"roll_test: Attempt to convert low part of {s} "
+            error_msg = (f"roll_test: Attempt to convert low part of '{s}' "
                          f"failed because it has an invalid format. Format is "
                          f"m or m-n, where m,n are positive integers "
                          f"such m <= n. 0, 00, or 000 will fail the test.")
@@ -85,7 +85,7 @@ def roll_test(s):
                 try:
                     high = int(l[1])
                 except ValueError:
-                    error_msg = (f"roll_test: Attempt to convert high part of {s} "
+                    error_msg = (f"roll_test: Attempt to convert high part of '{s}' "
                                  f"failed because it has an invalid format. Format is "
                                  f"m or m-n, where m,n are positive integers "
                                  f"such m <= n. 0, 00, or 000 will fail the test.")
@@ -93,7 +93,7 @@ def roll_test(s):
                     return (False,)
                 else:
                     if low > high:
-                        error_msg = (f"roll_test: Sequence test of {s} failed "
+                        error_msg = (f"roll_test: Sequence test of '{s}' failed "
                                      f"because it has invalid format. Format is "
                                      f"m or m-n, where m,n are positive integers "
                                      f"such m <= n. Do not use 0, 00, or 000 for "
@@ -107,15 +107,15 @@ def roll_test(s):
             elif len(l) == 1:
                 return (low,)
             else:
-                error_msg = (f"roll_test: Integer test failes because {s} has "
-                             f"invalid format. Must be"
+                error_msg = (f"roll_test: Integer test failed because '{s}' has "
+                             f"invalid format. Must be "
                              f"m or m-n, where m,n are positive integers "
                              f"such m <= n. Do not use 0, 00, or 000 for "
                              f"end values.")
                 print(error_msg)
                 return (False,)
     else:
-        raise ValueError(f"roll_test: argument is invalid type {type(s)}")
+        raise ValueError(f"roll_test: argument is invalid type '{type(s)}'.")
 
 
 def check_workbook(input_fp, ws_list):
@@ -331,42 +331,12 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
         print(f"check_worksheet: roll_max: {roll_max}.")
         print(f"check_worksheet: roll_header: {roll_header}. roll_column: {roll_column}.")
         print(f"check_worksheet: desc_header: {desc_header}. desc_column: {desc_column}.")
-        last_val = 0
-        for item in roll_column:
-            print(f"check_worksheet: last_val: {last_val}. item: {item}.")
-            if item is None or item == '-':
-                # Skip blank entries.
-                continue
-            else:
-                item_ck = roll_test(str(item))
-                print(f"check_worksheet: item_ck: {item_ck}.")
-                if item_ck[0] is False:
-                    # If roll_test returned (False,), there is a bad entry in the
-                    # roll column. 0 is also an invalid entry, since rolls start
-                    # with 1.
-                    print(f"check_worksheet: Invalid Format: Item, {item_ck} has an "
-                          f"invalid format.")
-                    return False
-                else:
-                    if last_val + 1 != item_ck[0]:
-                        # There is a gap or an overlap.
-                        print(f"check_worksheet: Invalid Format: Item, {item_ck}, "
-                              f"creates a gap or an overlap. ")
-                        return False
-                    else:
-                        if len(item_ck) == 2:
-                            last_val = item_ck[1]
-                        else:
-                            last_val = item_ck[0]
-        print(f"check_worksheet: last_val: {last_val}. roll_max: {roll_max}.")
-        if last_val != roll_max:
-            # Either the values goes over the maximum dice value or under it. Either
-            # way, the roll column is invalid.
-            gap = last_val - roll_max
-            print(f"check_worksheet: Invalid Format: Roll column has a gap of {gap} "
-                  f"between max die result of {roll_max} and the last value "
-                  f"{last_val}.")
-            return  False
+
+        if not _check_roll_column_consistency(roll_column, roll_max):
+            print(f"check_worksheet: Invalid Format: The roll column failed its "
+                  f"consistency check.")
+            return False
+
         else:
             # Now, we need to determine if this is a treasure table. If so, we need
             # to know which type. Coin tables have a very specific format.
@@ -374,6 +344,67 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
                 return _validate_coin_table_format(desc_column)
             else:
                 return True
+
+
+def _check_roll_column_consistency(col: pd.Series, roll_max: int):
+    """
+    This function takes a pandas.Series with a header that is a dice roll and
+    content that is either 'm' or 'm-n', where m and n are integers. In the case of
+    'm-n', the separator must a utf-8 dash character (45). Entries in the form
+    'm' can be strings of integers or actual integers. The numbers need to start
+    with 1 and end with the maximum value rollable on the dice specified in the
+    header without gaps or overlap. If all of these requirements are met, this
+    function returns True. If the Series fails any requirement, it will return
+    False.
+
+    roll_max is the maximum possible roll of the die specified in the column
+    header, which was validated using another internal function.
+
+    No entry may be blank or NoneType. Outcomes can be blank, not roll results.
+    :param col: pd.Series
+    :param roll_max: int
+    :return: bool
+    """
+    last_val = 0
+    for idx, item in enumerate(col):
+        print(f"_check_roll_column_consistency: last_val: {last_val}. item: {item}.")
+        if item is None or item == '-':
+            print(f"_check_roll_column_consistency: Blank item found in the roll column "
+                  f"of this table column at index {idx}.")
+            return False
+        else:
+            item_ck = roll_test(str(item))
+            print(f"_check_roll_column_consistency: item_ck: {item_ck}.")
+            if item_ck[0] is False:
+                # If roll_test returned (False,), there is a bad entry in the
+                # roll column. 0 is also an invalid entry, since rolls start
+                # with 1.
+                print(f"_check_roll_column_consistency: Invalid Format: Item, "
+                      f"{item_ck} has an invalid format.")
+                return False
+            else:
+                if last_val + 1 != item_ck[0]:
+                    # There is a gap or an overlap.
+                    print(f"_check_roll_column_consistency: Invalid Format: Item, "
+                          f"{item_ck}, creates a gap or an overlap. ")
+                    return False
+                else:
+                    if len(item_ck) == 2:
+                        last_val = item_ck[1]
+                    else:
+                        last_val = item_ck[0]
+    print(f"_check_roll_column_consistency: last_val: {last_val}. roll_max: {roll_max}.")
+    if last_val != roll_max:
+        # Either the values goes over the maximum dice value or under it. Either
+        # way, the roll column is invalid.
+        gap = last_val - roll_max
+        print(f"_check_roll_column_consistency: Invalid Format: Roll column has a gap "
+              f"of {gap} between max die result of {roll_max} and the last value "
+              f"{last_val}.")
+        return False
+    else:
+        print(f"_check_roll_column_consistency: Roll column validated.")
+        return True
 
 
 def _check_roll_column(cols: list):
