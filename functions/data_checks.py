@@ -266,6 +266,9 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
             print(f"check_worksheet: Invalid Format: First column is not a roll "
                   f"column or has an invalid header: {headers[0]}.")
             return False
+        else:
+            roll_series = table[headers[0]]
+
 
         # Next, we check the remaining headers for the correct format.
         col2_header = headers[1].lower()
@@ -311,7 +314,10 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
                   f"NaN, null, or NoneType entries. A blank string is "
                   f"acceptable, but not recommended.")
             return False
-        return True
+
+        # Final check is the consistency of the roll column.
+        return _check_roll_column_consistency(roll_series, roll_max)
+
     else:
         if len(headers) != 2:
             print(f"check_worksheet: Invalid Format: Invalid number of columns "
