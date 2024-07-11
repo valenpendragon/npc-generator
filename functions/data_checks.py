@@ -222,8 +222,10 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
     fact be strings to parse correctly.
 
     stat_values is used to override the usual behavior of the function.
-    Stat tables have a stat value from 1 to 30 and either a bonus/penalty
-    value in the second column or a description.
+    Stat tables have a stat value from 1 to up tp 30 and either a
+    bonus/penalty value in the second column or a description. The stat
+    values simply need to be in sequence, but can contain ranges, like
+    the roll column.
 
     other_valuables is a bool used to override the usual behavior of this
     function. Gem and Other Valuables Tables have a 3 column format, with
@@ -247,7 +249,58 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
     """
     headers = table.columns
     if stat_values:
-        # This is a stopgap until this feature is programmed.
+        # Stat tables have 2 columns. The first columns in consecutive
+        # integers from 1 to up to 30. The second column is either 'bonus'
+        # or 'description' (when lowercased). This is determined by the
+        # column header. The first column header is the name of the statistic
+        # (stat) or the word 'stat' or 'statistic'. The only required table
+        # so far is Stat Bonuses, which stat and bonus columns.
+        print(f"check_worksheet: Beginning test of a stat table.")
+
+        if len(headers) != 2:
+            print(f"check_worksheet: Invalid Format: Invalid number of columns "
+                  f"for stat tables: {len(headers)}. It should be 2.")
+            return False
+
+        first_col_header = headers[0]
+        second_col_header = headers[1]
+        if ('bonus' not in second_col_header.lower()) and \
+                ('penalty' not in second_col_header.lower()) and \
+                ('description' not in second_col_header.lower()):
+            print(f"check_worksheet: Invalid Format: Second column header must "
+                  f"contain 'bonus', 'penalty', or 'description'. The current "
+                  f"header is {headers[1]}.")
+            return False
+        elif ('bonus' in second_col_header.lower()) or \
+                ('penalty' in second_col_header.lower()):
+            bonus_series = table[second_col_header]
+        else:
+            bonus_series = None
+
+        stat_series = table[first_col_header]
+        stat_max = len(stat_series)
+        # We can use _check_roll_column_consistency() on this column
+        # to validate it.
+        if not _check_roll_column_consistency(stat_series, stat_max):
+            print(f"check_worksheet: Invalid Format: Stat column failed "
+                  f"the sequential values test.")
+            return False
+
+        if bonus_series is not None:
+            # Every entry needs to an integer.
+            for val in bonus_series:
+                if not isinstance(val, int):
+                    try:
+                        test_val = int(val)
+                    except ValueError:
+                        print(f"check_worksheet: Invalid Format: Bonus/Penalty column "
+                              f"contains {val} which cannot used as an integer.")
+                        return False
+                else:
+                    continue
+
+        # Description columns can contain any values, include NoneType or blanks.
+        print(f"check_worksheet: Stat table validated.")
         return True
     elif other_valuables:
         # These tables have one of two legit formats. Both share a column
@@ -268,7 +321,6 @@ def check_worksheet(table, stat_values=False, other_valuables=False) -> bool:
             return False
         else:
             roll_series = table[headers[0]]
-
 
         # Next, we check the remaining headers for the correct format.
         col2_header = headers[1].lower()
