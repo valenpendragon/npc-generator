@@ -218,7 +218,13 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow.generate_treasure: other_val_table: {other_val_table}.")
         print(f"TreasureWindow.generate_treasure: other_val_result: {other_val_result}.")
 
-    def _parse_gem_items(self):
+        raw_other_val_result = self._get_table_result(other_val_table,
+                                                      other_val_ws,
+                                                      other_val_result)
+        print(f"TreasureWindow.generate_treasure: raw_other_val_result:"
+              f" {raw_other_val_result}.")
+
+    def _parse_other_val_items(self):
         pass
 
     def _parse_magic_items(self, magic_result):
