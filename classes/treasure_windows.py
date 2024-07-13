@@ -207,6 +207,20 @@ class TreasureWindow(QMainWindow):
         if raw_magic_result is not None:
             self._parse_magic_items(raw_magic_result)
 
+        # Get the correct worksheet for other treasure items (gems and other valuables).
+        other_val_ws = self._return_ws_name('other', cr, cr_wb_name)
+
+        # Get gems and other valuables treasure from this table.
+        other_val_table = self.tables[cr_wb_name][other_val_ws]
+        other_val_result = self._extract_dice_from_table_header_return_result(
+            other_val_table)
+        print(f"TreasureWindow.generate_treasure: other_val_ws: {other_val_ws}.")
+        print(f"TreasureWindow.generate_treasure: other_val_table: {other_val_table}.")
+        print(f"TreasureWindow.generate_treasure: other_val_result: {other_val_result}.")
+
+    def _parse_gem_items(self):
+        pass
+
     def _parse_magic_items(self, magic_result):
         """
         This method takes the string describing how to roll for the magic items, parses it

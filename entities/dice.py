@@ -69,7 +69,7 @@ class Dice:
     def _roll_advantage(self):
         roll1 = randint(1, self.dice_size)
         roll2 = randint(1, self.dice_size)
-        print(f"roll_advantage: roll1: {roll1}. roll2: {roll2}")
+        print(f"Dice.roll_advantage: roll1: {roll1}. roll2: {roll2}")
         if roll1 >= roll2:
             return roll1
         else:
@@ -78,7 +78,7 @@ class Dice:
     def _roll_disadvantage(self):
         roll1 = randint(1, self.dice_size)
         roll2 = randint(1, self.dice_size)
-        print(f"roll_disadvantage: roll1: {roll1}. roll2: {roll2}")
+        print(f"Dice.roll_disadvantage: roll1: {roll1}. roll2: {roll2}")
         if roll1 <= roll2:
             return roll1
         else:
@@ -87,7 +87,7 @@ class Dice:
     def roll(self):
         """This method implements the actual roll of the defined dice."""
         rolls = []
-        print(f"roll: rolls: {rolls}")
+        print(f"Dice.roll: rolls: {rolls}")
         for n in range(self.number_of_rolls):
             match self.roll_type:
                 case "normal":
@@ -100,13 +100,13 @@ class Dice:
             rolls.append(roll)
 
         rolls.sort()
-        print(f"roll: rolls: {rolls}")
+        print(f"Dice.roll: rolls: {rolls}")
         if self.number_of_rolls_dropped > 0:
             if self.drop_lowest:
                 rolls_final = rolls[self.number_of_rolls_dropped:]
             else:
                 rolls_final = rolls[0: -self.number_of_rolls_dropped]
-            print(f"roll: rolls_final: {rolls_final}")
+            print(f"Dice.roll: rolls_final: {rolls_final}")
             return sum(rolls_final)
         else:
             return sum(rolls)
@@ -126,7 +126,7 @@ def return_die_roll(s):
         n = int(l[0])
         m = int(l[1])
     except ValueError:
-        error_msg = (f"return_die_roll: The string provided must be in the "
+        error_msg = (f"Dice.return_die_roll: The string provided must be in the "
                      f"format 'ndm' or 'nDm' where n and m are integers. The"
                      f"string supplied is {s}.")
         raise ValueError(error_msg)
