@@ -224,8 +224,23 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow.generate_treasure: raw_other_val_result:"
               f" {raw_other_val_result}.")
 
-    def _parse_other_val_items(self):
-        pass
+        if raw_other_val_result is not None:
+            self._parse_other_val_items(raw_other_val_result)
+
+    def _parse_other_val_items(self, raw_result: str):
+        """
+        This internal function parses text looking for type of items, its rough value,
+        and possible dice rolls for number of the item. Next, it determines which
+        table in the other valuables workbook that handles those items.
+
+        All of its actions take place internally, changing only the treasure attribute.
+        :return:
+        """
+        print(f"TreasureWindow._parse_other_val_items: Starting to parse result.")
+        raw_list = raw_result.split(', ')
+        print(f"TreasureWindow._parse_other_val_items: raw_list: {raw_list}.")
+        for item in raw_list:
+            print(f"TreasureWindow._parse_other_val_items: item: {item}.")
 
     def _parse_magic_items(self, magic_result):
         """
