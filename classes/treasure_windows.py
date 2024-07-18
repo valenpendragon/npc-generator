@@ -237,10 +237,23 @@ class TreasureWindow(QMainWindow):
         :return:
         """
         print(f"TreasureWindow._parse_other_val_items: Starting to parse result.")
-        raw_list = raw_result.split(', ')
-        print(f"TreasureWindow._parse_other_val_items: raw_list: {raw_list}.")
-        for item in raw_list:
+        other_list = raw_result.split(', ')
+        print(f"TreasureWindow._parse_other_val_items: raw_list: {other_list}.")
+
+        rolls = []
+        tables = []
+        for item in other_list:
             print(f"TreasureWindow._parse_other_val_items: item: {item}.")
+            item = item.rstrip()
+            # The entry format is m (ndo) p 'den' 'type', where m, n, o, and p are
+            # integers, d denotes dice, 'den' is a 2-letter string for the primary
+            # currency (e.g. 'gp' or 'sp'), and 'type' is one of two strings: 'gems'
+            # or 'valuables'.
+            contents = item.split(' ')
+            print(f"TreasureWindow._parse_other_val_items: contents: {contents}.")
+
+
+
 
     def _parse_magic_items(self, magic_result):
         """
