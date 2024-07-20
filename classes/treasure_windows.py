@@ -242,18 +242,38 @@ class TreasureWindow(QMainWindow):
 
         rolls = []
         tables = []
+        values = []
         for item in other_list:
             print(f"TreasureWindow._parse_other_val_items: item: {item}.")
             item = item.rstrip()
             # The entry format is m (ndo) p 'den' 'type', where m, n, o, and p are
             # integers, d denotes dice, 'den' is a 2-letter string for the primary
             # currency (e.g. 'gp' or 'sp'), and 'type' is one of two strings: 'gems'
-            # or 'valuables'.
+            # or 'valuables'. If this is only one item, the format is p 'den' 'type'.
             contents = item.split(' ')
             print(f"TreasureWindow._parse_other_val_items: contents: {contents}.")
 
+            item_type = contents[-1]
+            item_val = f"{contents[-3]} {contents[-2]}"
+            print(f"TreasureWindow._parse_other_val_items: item_type: {item_type}, "
+                  f"item_val: {item_val}.")
 
+            if 'valuable' in item_type:
+                tables.append('valuables')
+            else:
+                tables.append('gems')
 
+            print(f"TreasureWindow._parse_other_val_items: tables: {tables}.")
+
+            if len(contents) == 3:
+                # There is only one item.
+                rolls.append(1)
+            else:
+                # There are multiple items.
+                no_rolls = int(contents[0])
+                roll_type = contents[1][1:-1]
+                print(f"TreasureWindow._parse_other_val_items: no_rolls: {no_rolls}, "
+                      f"roll_type: {roll_type}.")
 
     def _parse_magic_items(self, magic_result):
         """
