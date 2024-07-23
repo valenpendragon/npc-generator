@@ -245,7 +245,7 @@ class TreasureWindow(QMainWindow):
         values = []
         for item in other_list:
             print(f"TreasureWindow._parse_other_val_items: item: {item}.")
-            item = item.rstrip()
+            item = item.rstrip().lower()
             # The entry format is m (ndo) p 'den' 'type', where m, n, o, and p are
             # integers, d denotes dice, 'den' is a 2-letter string for the primary
             # currency (e.g. 'gp' or 'sp'), and 'type' is one of two strings: 'gems'
@@ -269,11 +269,27 @@ class TreasureWindow(QMainWindow):
                 # There is only one item.
                 rolls.append(1)
             else:
-                # There are multiple items.
-                no_rolls = int(contents[0])
-                roll_type = contents[1][1:-1]
+                # There are multiple items in content. The first is an average roll and
+                # will be ignored.
+                dice_roll = contents[1][1:-1]
+                print(f"TreasureWindow._parse_other_val_items: roll_type: {dice_roll}.")
+
+                dice_roll_list = dice_roll.split('d')
+                if len(dice_roll_list) != 2:
+                    error_msg = (f"TreasureWindow._parse_other_val_items: An dice roll "
+                                 f"for other valuables has an invalid format. Cannot "
+                                 f"parse this result: {item}.")
+                    QMessageBox.critical(self, "Trappable Error", error_msg)
+                    return
+                else:
+                    no_rolls = int(dice_roll_list[0])
+                    dice_type = int(dice_roll_list[1])
                 print(f"TreasureWindow._parse_other_val_items: no_rolls: {no_rolls}, "
-                      f"roll_type: {roll_type}.")
+                      f"dice_type = {dice_type}.")
+                dice = Dice(dice_type, dice_number=no_rolls)
+                print(f"TreasureWindow._parse_other_val_items: dice: {dice}.")
+
+
 
     def _parse_magic_items(self, magic_result):
         """
@@ -352,7 +368,6 @@ class TreasureWindow(QMainWindow):
                 magic_item_wb = self.tables[magic_item_wb_name]
                 print(f"TreasureWindow._parse_magic_items: wb_choice: {wb_choice}. "
                       f"magic_item_wb_name: {magic_item_wb_name}.")
-                # print(f"TreasureWindow._parse_magic_items: magic_item_wb: {magic_item_wb}.")
 
                 # The format for Magic Item tables is '{wb_name} N', where N is an integer
                 # from 1 to 26. We have remove the file extension first.
@@ -521,14 +536,19 @@ class TreasureWindow(QMainWindow):
         :param roll: int
         :return: str
         """
+        print(f"TreasureWindow._get_table_result: ws: {ws}, roll: {roll}.")
+        print(f"TreasureWindow._get_table_result: table: {table}.")
         roll_col_name, result_col_name = table.columns
         roll_col = table[roll_col_name]
         result_col = table[result_col_name]
+        print(f"TreasureWindow._get_table_result: roll_col_name: {roll_col_name}, "
+              f"result_col_name: {result_col_name}.")
         print(f"TreasureWindow._get_table_result: roll_col: {roll_col}.")
         print(f"TreasureWindow._get_table_result: result_col: {result_col}.")
 
         roll_idx = None
         for idx, item in roll_col.items():
+            print(f"TreasureWindow._get_table_result: item: {item}, idx: {idx}.")
             m,n = return_range(item)
             if m <= roll <= n:
                 roll_idx = idx

@@ -7,11 +7,12 @@ def return_range(s):
     :param s:
     :return: tuple in the form (m, m) or (m, n)
     """
+    print(f"return_range: s: {s}.")
     # First, make sure the string is not NoneType.
     if s is None:
         error_msg = (f"return_range: Fatal Error: The string cannot be "
                      f"NoneType.")
-        raise ValueError(error_msg)
+        raise TypeError(error_msg)
 
     # Second, check the string for integers and dashes.
     s = str(s)
