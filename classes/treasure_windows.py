@@ -525,7 +525,7 @@ class TreasureWindow(QMainWindow):
 
     def _get_table_result(self, table, ws, roll):
         """
-        This static method takes the roll integer, finds the value in the dXX columns
+        This method takes the roll integer, finds the value in the dXX columns
         that contains that value (or is in the range of values) and returns the
         corresponding result text.
         This method needs the name of worksheet sent to it in case there is an error
@@ -547,9 +547,17 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow._get_table_result: result_col: {result_col}.")
 
         roll_idx = None
+
+        # Sometimes, there is a error converting a '1' string at the top of the table.
+        # Instead of a '1' or 1, it becomes NoneType or NaN. This has to handled here.
+        ctr = 0
         for idx, item in roll_col.items():
             print(f"TreasureWindow._get_table_result: item: {item}, idx: {idx}.")
-            m,n = return_range(item)
+            if ctr == 0 and item is None:
+                m, n = (1, 1)
+            else:
+                m,n = return_range(item)
+            print(f"TreasureWindow._get_table_result: m: {m}, n: {n}.")
             if m <= roll <= n:
                 roll_idx = idx
                 break
@@ -557,12 +565,12 @@ class TreasureWindow(QMainWindow):
             error_msg = (f"TreasureWindow._get_table_result: {ws} is invalid. "
                          f"Returning empty coin treasure.")
             QMessageBox.critical(self, 'Trappable Error', error_msg)
-            result = "no coins"
+            result = "nothing"
         else:
             result = result_col.loc[roll_idx]
 
         if result == "-":
-            result = "no coins"
+            result = "nothing"
         return result
 
     @staticmethod
