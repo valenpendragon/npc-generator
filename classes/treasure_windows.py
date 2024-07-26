@@ -190,6 +190,7 @@ class TreasureWindow(QMainWindow):
         if raw_coin_result is not None:
             self._parse_coin_result(raw_coin_result)
         print(f"TreasureWindow.generate_treasure: Coin Treasure completed.")
+        print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
 
         # Get the correct worksheet for magic items to include in treasures.
         magic_ws = self._return_ws_name('magic', cr, cr_wb_name)
@@ -206,6 +207,8 @@ class TreasureWindow(QMainWindow):
 
         if raw_magic_result is not None:
             self._parse_magic_items(raw_magic_result)
+        print(f"TreasureWindow.generate_treasure: Magic Items completed.")
+        print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
 
         # Get the correct worksheet for other treasure items (gems and other valuables).
         other_val_ws = self._return_ws_name('other', cr, cr_wb_name)
@@ -226,6 +229,8 @@ class TreasureWindow(QMainWindow):
 
         if raw_other_val_result is not None:
             self._parse_other_val_items(raw_other_val_result)
+        # print(f"TreasureWindow.generate_treasure: Other Valuables completed.")
+        print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
 
     def _parse_other_val_items(self, raw_result: str):
         """
@@ -253,10 +258,18 @@ class TreasureWindow(QMainWindow):
             contents = item.split(' ')
             print(f"TreasureWindow._parse_other_val_items: contents: {contents}.")
 
+            # We have to remove any empty entries created by extra blank spaces.
+            for idx, element in enumerate(contents):
+                if element == '' or element == ' ':
+                    contents.pop(idx)
+            print(f"TreasureWindow._parse_other_val_items: contents: {contents}.")
+
             item_type = contents[-1]
             item_val = f"{contents[-3]} {contents[-2]}"
             print(f"TreasureWindow._parse_other_val_items: item_type: {item_type}, "
                   f"item_val: {item_val}.")
+            values.append(item_val)
+            print(f"TreasureWindow._parse_other_val_items: values: {values}.")
 
             if 'valuable' in item_type:
                 tables.append('valuables')
@@ -270,7 +283,7 @@ class TreasureWindow(QMainWindow):
                 rolls.append(1)
             else:
                 # There are multiple items in content. The first is an average roll and
-                # will be ignored.
+                # will be ignored. The slice removes the parentheses.
                 dice_roll = contents[1][1:-1]
                 print(f"TreasureWindow._parse_other_val_items: roll_type: {dice_roll}.")
 
@@ -284,10 +297,12 @@ class TreasureWindow(QMainWindow):
                 else:
                     no_rolls = int(dice_roll_list[0])
                     dice_type = int(dice_roll_list[1])
-                print(f"TreasureWindow._parse_other_val_items: no_rolls: {no_rolls}, "
-                      f"dice_type = {dice_type}.")
-                dice = Dice(dice_type, dice_number=no_rolls)
-                print(f"TreasureWindow._parse_other_val_items: dice: {dice}.")
+                    print(f"TreasureWindow._parse_other_val_items: no_rolls: "
+                          f"{no_rolls}, dice_type = {dice_type}.")
+                    dice = Dice(dice_type, dice_number=no_rolls)
+                    print(f"TreasureWindow._parse_other_val_items: dice: {dice}.")
+                    rolls.append(dice.roll())
+            print(f"TreasureWindow._parse_other_val_items: rolls: {rolls}.")
 
 
 
