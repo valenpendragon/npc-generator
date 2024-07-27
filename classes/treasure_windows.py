@@ -14,6 +14,9 @@ import openpyxl
 from entities import (Treasure, OtherWealth, MagicItem,
                       Coin, Gem, Valuable, Dice, return_die_roll)
 from functions import return_range, check_string
+from collections import namedtuple
+
+dict_path = namedtuple('dict_path', ['workbook', 'worksheet'])
 
 
 class TreasureWindow(QMainWindow):
@@ -248,6 +251,7 @@ class TreasureWindow(QMainWindow):
         rolls = []
         tables = []
         values = []
+        denomination = []
         for item in other_list:
             print(f"TreasureWindow._parse_other_val_items: item: {item}.")
             item = item.rstrip().lower()
@@ -265,11 +269,27 @@ class TreasureWindow(QMainWindow):
             print(f"TreasureWindow._parse_other_val_items: contents: {contents}.")
 
             item_type = contents[-1]
-            item_val = f"{contents[-3]} {contents[-2]}"
+            item_val = contents[-3]
+            item_den = contents[-2]
             print(f"TreasureWindow._parse_other_val_items: item_type: {item_type}, "
-                  f"item_val: {item_val}.")
+                  f"item_val: {item_val}, item_den: {item_den}.")
             values.append(item_val)
-            print(f"TreasureWindow._parse_other_val_items: values: {values}.")
+            match item_den:
+                case 'pp':
+                    denomination.append('platinum')
+                case 'ep':
+                    denomination.append('electrum')
+                case 'gp':
+                    denomination.append('gold')
+                case 'sp':
+                    denomination.append('silver')
+                case 'cp':
+                    denomination.append('copper')
+                case _:
+                    denomination.append('gold')
+
+            print(f"TreasureWindow._parse_other_val_items: values: {values}, "
+                  f"denomination: {denomination}.")
 
             if 'valuable' in item_type:
                 tables.append('valuables')
@@ -303,6 +323,60 @@ class TreasureWindow(QMainWindow):
                     print(f"TreasureWindow._parse_other_val_items: dice: {dice}.")
                     rolls.append(dice.roll())
             print(f"TreasureWindow._parse_other_val_items: rolls: {rolls}.")
+
+        for idx, item_type in enumerate(tables):
+            no_items = rolls[idx]
+            item_val = f"{values[idx]} {denomination[idx]}"
+            other_val_wb_names = []
+            print(f"TreasureWindow._parse_other_val_items: no_items: {no_items}, "
+                  f"item_val: {item_val}, item_type: {item_type}.")
+            for wb_name in self.tables:
+                print(f"TreasureWindow._parse_other_val_items: wb_name: {wb_name}.")
+                if item_type in wb_name.lower():
+                    other_val_wb_names.append(wb_name)
+                    print(f"TreasureWindow._parse_other_val_items: Added {wb_name} "
+                          f"to other_val_wb_names.")
+                else:
+                    print(f"TreasureWindow._parse_other_val_items: Skipping {wb_name}.")
+                    continue
+            if other_val_wb_names == []:
+                error_msg = (f"TreasureWindow._parse_other_val_items: There are no "
+                             f"other valuables workbooks in the data tables. This is a "
+                             f"not a fatal error, but it means that no specific "
+                             f"other valuables can be determined.")
+                QMessageBox.critical(self, 'Serious Error', error_msg)
+                return
+            else:
+                print(f"TreasureWindow._parse_other_val_items: other_val_wb_names: "
+                      f"{other_val_wb_names}.")
+
+            # Since the denominations could differ from valuables and gem tables,
+            # other_val_ws_names must contain tuples of (wb_name, ws_name).
+            other_val_ws_names = []
+
+            for wb_name in other_val_wb_names:
+                print(f"TreasureWindow._parse_other_val_items: wb_name: {wb_name}.")
+                for ws_name in self.tables[wb_name]:
+                    print(f"TreasureWindow._parse_other_val_items: ws_name: {ws_name}.")
+                    print(f"TreasureWindow._parse_other_val_items: item_type: "
+                          f"{item_type}, item_val: {item_val}.")
+                    if item_type in ws_name.lower() and item_val in ws_name.lower():
+                        other_val_ws_names.append(dict_path(workbook=wb_name,
+                                                            worksheet=ws_name))
+            if other_val_ws_names == []:
+                error_msg = (f"TreasureWindow._parse_other_val_items: There are no "
+                             f"other valuables worksheets in the data tables. This is a "
+                             f"not a fatal error, but it means that no specific "
+                             f"other valuables can be determined.")
+                QMessageBox.critical(self, 'Serious Error', error_msg)
+                return
+            else:
+                print(f"TreasureWindow._parse_other_val_items: other_val_ws_names: "
+                      f"{other_val_ws_names}.")
+
+            # We have our paths to the worksheets are needed. Gem and other
+            # valuables worksheets have 3 columns: roll, 'gemstone[s]'
+            # or 'valuable[s]', and 'description[s]' or 'example[s]'.
 
 
 
