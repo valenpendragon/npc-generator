@@ -397,6 +397,11 @@ class TreasureWindow(QMainWindow):
                 die_roll = self._extract_dice_from_table_header_return_result(
                     other_val_table)
                 print(f"TreasureWindow._parse_other_val_items: die_roll: {die_roll}.")
+                print(f"TreasureWindow._parse_other_val_items: item_type: "
+                      f"{item_type}. item_val: {item_val}.")
+                result = self._get_table_result(other_val_table, table_choice[1],
+                                                die_roll, table_type=item_type)
+                print(f"TreasureWindow._parse_other_val_items: result: {result}.")
 
 
 
@@ -632,7 +637,7 @@ class TreasureWindow(QMainWindow):
             print(f"TreasureWindow:_parse_coin_result: treasure: {self.treasure}.")
         print(f"TreasureWindow._parse_coin_result: Process completed.")
 
-    def _get_table_result(self, table, ws, roll):
+    def _get_table_result(self, table, ws, roll, table_type='normal'):
         """
         This method takes the roll integer, finds the value in the dXX columns
         that contains that value (or is in the range of values) and returns the
@@ -640,20 +645,41 @@ class TreasureWindow(QMainWindow):
         This method needs the name of worksheet sent to it in case there is an error
         in the table content that prevents this method from returning a str from
         the table based on the roll.
+        The behavior of this method changes when the table_type is set to 'gems'
+        or 'valuables'. Under this setting, it looks for 2 columns of results to put
+        together to produce the desired output string. For gems, the second column
+        is 'gemstone', the third is 'description'. For other valuables, the second
+        column is 'valuable', the third is 'example'. The format of the output for
+        gems is gemstone (desc: description). The format of the output for other
+        valuables is valuable (ex: example).
         :param table: pandas Dataframe
         :param ws: str
         :param roll: int
+        :param table_type: str, defaults to 'normal', alternate values are 'gems'
+            or 'valuables'
         :return: str
         """
-        print(f"TreasureWindow._get_table_result: ws: {ws}, roll: {roll}.")
+        print(f"TreasureWindow._get_table_result: ws: {ws}, roll: {roll}. "
+              f"table_type: {table_type}.")
         print(f"TreasureWindow._get_table_result: table: {table}.")
-        roll_col_name, result_col_name = table.columns
-        roll_col = table[roll_col_name]
-        result_col = table[result_col_name]
+        match table_type:
+            case 'gems'|'valuables':
+                roll_col_name, result_col_name, result_col_2_name = table.columns
+                roll_col = table[roll_col_name]
+                result_col = table[result_col_name]
+                result_col_2 = table[result_col_2_name]
+            case 'normal'|_:
+                roll_col_name, result_col_name = table.columns
+                roll_col = table[roll_col_name]
+                result_col = table[result_col_name]
+                result_col_2_name = result_col_2 = None
+
         print(f"TreasureWindow._get_table_result: roll_col_name: {roll_col_name}, "
-              f"result_col_name: {result_col_name}.")
+              f"result_col_name: {result_col_name}. result_col_2: "
+              f"{result_col_2}.")
         print(f"TreasureWindow._get_table_result: roll_col: {roll_col}.")
         print(f"TreasureWindow._get_table_result: result_col: {result_col}.")
+        print(f"TreasureWindow._get_table_result: result_col_2: {result_col_2}.")
 
         roll_idx = None
 
