@@ -363,6 +363,12 @@ class TreasureWindow(QMainWindow):
                     if item_type in ws_name.lower() and item_val in ws_name.lower():
                         other_val_ws_names.append(dict_path(workbook=wb_name,
                                                             worksheet=ws_name))
+                        print(f"TreasureWindow._parse_other_val_items: Added {ws_name} "
+                              f"to other_val_ws_names.")
+                    else:
+                        print(f"TreasureWindow._parse_other_val_items: Skipping "
+                              f"{ws_name}.")
+
             if other_val_ws_names == []:
                 error_msg = (f"TreasureWindow._parse_other_val_items: There are no "
                              f"other valuables worksheets in the data tables. This is a "
@@ -377,6 +383,20 @@ class TreasureWindow(QMainWindow):
             # We have our paths to the worksheets are needed. Gem and other
             # valuables worksheets have 3 columns: roll, 'gemstone[s]'
             # or 'valuable[s]', and 'description[s]' or 'example[s]'.
+            no_other_val_tables = len(other_val_ws_names)
+            for n in range(no_items):
+                # Pick the table from those found.
+                table_no = random.randint(0, no_other_val_tables - 1)
+                table_choice = other_val_ws_names[table_no]
+                print(f"TreasureWindow._parse_other_val_items: idx: {idx}. "
+                      f"table_no: {table_no}. table_choice: {table_choice}.")
+                other_val_table = self.tables[table_choice[0]][table_choice[1]]
+                print(f"TreasureWindow._parse_other_val_items: other_val_table: "
+                      f"{other_val_table}.")
+
+                die_roll = self._extract_dice_from_table_header_return_result(
+                    other_val_table)
+                print(f"TreasureWindow._parse_other_val_items: die_roll: {die_roll}.")
 
 
 
