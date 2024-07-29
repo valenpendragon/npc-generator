@@ -1,10 +1,13 @@
-def return_range(s):
+def return_range(s, debug=False):
     """
     This function takes a string in one of two forms: n or m-n, where
     m and n are strings such that int(n) or int(m) is an integer. This
     can handle a situation where 'n-m' in actually integers with extra
     spaces surrounding the values.
+    If debug is True, more complete debugging messages are shown in
+    program output.
     :param s:
+    :param debug: bool, defaults to False
     :return: tuple in the form (m, m) or (m, n)
     """
     print(f"return_range: s: {s}.")
@@ -16,13 +19,16 @@ def return_range(s):
 
     # Second, check the string for integers and dashes.
     s = str(s)
-    print(f"return_range: s: {s}.")
+    if debug:
+        print(f"return_range: s: {s}.")
     # Remove blank spaces.
     s = s.replace(' ', '')
-    print(f"return_range: s: {s}.")
+    if debug:
+        print(f"return_range: s: {s}.")
     ctr = 0
     for c in s:
-        print(f"return_range: c: {c}. ctr: {ctr}")
+        if debug:
+            print(f"return_range: c: {c}. ctr: {ctr}")
         if c != '-':
             try:
                 n = int(c.strip())
