@@ -676,7 +676,7 @@ class TreasureWindow(QMainWindow):
 
         print(f"TreasureWindow._get_table_result: roll_col_name: {roll_col_name}, "
               f"result_col_name: {result_col_name}. result_col_2: "
-              f"{result_col_2}.")
+              f"{result_col_2}. result_col_2_name: {result_col_2_name}.")
         print(f"TreasureWindow._get_table_result: roll_col: {roll_col}.")
         print(f"TreasureWindow._get_table_result: result_col: {result_col}.")
         print(f"TreasureWindow._get_table_result: result_col_2: {result_col_2}.")
@@ -702,10 +702,16 @@ class TreasureWindow(QMainWindow):
             QMessageBox.critical(self, 'Trappable Error', error_msg)
             result = "nothing"
         else:
-            result = result_col.loc[roll_idx]
+            if table_type == 'gems':
+                result = f"{result_col.loc[roll_idx]} Desc: {result_col_2.loc[roll_idx]}"
+            elif table_type == 'valuables':
+                result = f"{result_col.loc[roll_idx]} Ex: {result_col_2.loc[roll_idx]}"
+            else:
+                result = result_col.loc[roll_idx]
 
         if result == "-":
             result = "nothing"
+        print(f"TreasureWindow._get_table_result: result: {result}.")
         return result
 
     @staticmethod
