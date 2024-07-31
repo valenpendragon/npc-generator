@@ -232,7 +232,7 @@ class TreasureWindow(QMainWindow):
 
         if raw_other_val_result is not None:
             self._parse_other_val_items(raw_other_val_result)
-        # print(f"TreasureWindow.generate_treasure: Other Valuables completed.")
+        print(f"TreasureWindow.generate_treasure: Other Valuables completed.")
         print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
 
     def _parse_other_val_items(self, raw_result: str):
@@ -324,6 +324,7 @@ class TreasureWindow(QMainWindow):
                     rolls.append(dice.roll())
             print(f"TreasureWindow._parse_other_val_items: rolls: {rolls}.")
 
+        other_wealth = OtherWealth()
         for idx, item_type in enumerate(tables):
             no_items = rolls[idx]
             item_val = f"{values[idx]} {denomination[idx]}"
@@ -403,7 +404,28 @@ class TreasureWindow(QMainWindow):
                                                 die_roll, table_type=item_type)
                 print(f"TreasureWindow._parse_other_val_items: result: {result}.")
 
-
+                # Now, the result needs to be split up by type and the treasures
+                # created and added to self.treasure.
+                if item_type == 'gems':
+                    gem_info = result.split(" Desc: ")
+                    gem_type = gem_info[0]
+                    gem_desc = gem_info[1]
+                    gem = Gem(type=gem_type, description=gem_desc, value=item_val)
+                    print(f"TreasureWindow._parse_other_val_items: gem: {gem}.")
+                    other_wealth.add_item(gem)
+                else:
+                    other_val_info = result.split(" Ex: ")
+                    other_val_item = other_val_info[0]
+                    other_val_ex = other_val_info[1]
+                    valuable = Valuable(item=other_val_item, example=other_val_ex,
+                                        value=item_val)
+                    print(f"TreasureWindow._parse_other_val_items: valuable: "
+                          f"{valuable}.")
+                    other_wealth.add_item(valuable)
+                print(f"TreasureWindow._parse_other_val_items: other_wealth: "
+                      f"{other_wealth}.")
+        print(f"TreasureWindow._parse_other_val_items: other_wealth: {other_wealth}.")
+        self.treasure.add_item(other_wealth)
 
     def _parse_magic_items(self, magic_result):
         """
