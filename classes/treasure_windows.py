@@ -4,7 +4,7 @@ import sys
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QMessageBox, QApplication, QMainWindow, QStatusBar,
                                QLabel, QHBoxLayout, QGridLayout, QDockWidget,
-                               QComboBox)
+                               QComboBox, QTextEdit)
 from PySide6.QtCore import Qt
 import json
 import os
@@ -73,7 +73,13 @@ class TreasureWindow(QMainWindow):
         # Set up the CentralWidget that will display our output.
         self.setCentralWidget(QWidget(self))
         self.grid = QGridLayout()
+        self.treasure_output_label = QLabel("Treasure Generated")
+        self.grid.addWidget(self.treasure_output_label, 0, 1)
+        self.treasure_display = QTextEdit(self)
+        self.treasure_display.setReadOnly(True)
+        self.grid.addWidget(self.treasure_display, 1, 1)
         self.centralWidget().setLayout(self.grid)
+
 
         # Create the dock widget for CR-based treasure generation.
         self.dock_widget_cr = QDockWidget(self)
@@ -234,6 +240,8 @@ class TreasureWindow(QMainWindow):
             self._parse_other_val_items(raw_other_val_result)
         print(f"TreasureWindow.generate_treasure: Other Valuables completed.")
         print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
+
+
 
     def _parse_other_val_items(self, raw_result: str):
         """
