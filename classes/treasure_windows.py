@@ -251,6 +251,7 @@ class TreasureWindow(QMainWindow):
             self.treasure_display.append(f"<p>No treasure of any kind was generated.</p>")
         else:
             self.treasure_display.append(f"<p><b>Generated treasure is: </b></p>")
+            self.treasure_display.append(f"{self.treasure}")
 
     def _parse_other_val_items(self, raw_result: str):
         """
