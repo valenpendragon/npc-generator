@@ -80,7 +80,6 @@ class TreasureWindow(QMainWindow):
         self.grid.addWidget(self.treasure_display, 1, 1)
         self.centralWidget().setLayout(self.grid)
 
-
         # Create the dock widget for CR-based treasure generation.
         self.dock_widget_cr = QDockWidget(self)
         self.dock_widget_cr.setWindowTitle("CR-Based Generation")
@@ -240,8 +239,18 @@ class TreasureWindow(QMainWindow):
             self._parse_other_val_items(raw_other_val_result)
         print(f"TreasureWindow.generate_treasure: Other Valuables completed.")
         print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
+        self.print_treasure()
 
-
+    def print_treasure(self):
+        """
+        This method prints the contents of the treasure attribute to the QTextEdit
+        widget in the CentralWidget (right side).
+        :return:
+        """
+        if self.treasure is None:
+            self.treasure_display.append(f"<p>No treasure of any kind was generated.</p>")
+        else:
+            self.treasure_display.append(f"<p><b>Generated treasure is: </b></p>")
 
     def _parse_other_val_items(self, raw_result: str):
         """
