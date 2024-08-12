@@ -582,7 +582,7 @@ class TreasureWindow(QMainWindow):
                                                 roll_result)
                 print(f"TreasureWindow._parse_magic_items: roll_result: "
                       f"{roll_result}. result: {result}.")
-                self.treasure.add_item(MagicItem(result))
+                self.treasure.add_item(MagicItem(result, magic_item_ws_name))
         print(f"TreasureWindow._parse_magic_items: self.treasure: {self.treasure}.")
         print(f"TreasureWindow._parse_magic_items: Magic Item determination completed.")
         return

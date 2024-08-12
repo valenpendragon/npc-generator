@@ -12,13 +12,17 @@ Coin = namedtuple('Coin', ['number', 'type'])
 class MagicItem:
     """
     This class handles magic items in RPGs. Since the tables only contain
-    the name of the item, that is the only attribute available.
+    the name of the item, that is the only attribute available. The source
+    attribute contains the name of actual worksheet it came from. The
+    standard embeds the workbook name at least partly in each worksheet
+    name, enabling the GM to find the right source for the full description.
     """
-    def __init__(self, name: str):
+    def __init__(self, name: str, source: str):
         self.item_name = name
+        self.item_source = source
 
     def __str__(self):
-        s = f"Magic Item: {self.item_name}"
+        s = f"Magic Item: {self.item_name}. Source: {self.item_source}."
         return s
 
 
@@ -107,6 +111,9 @@ if __name__ == "__main__":
     desc_item_1 = "+1 Weapon"
     desc_item_2 = "healing potion"
     desc_item_3 = "robe of the archmage"
+    source_item_1 = "Book of Weapons 1"
+    source_item_2 = "Book of Potions 1"
+    source_item_3 = "Book of Armor 10"
 
     gem1 = Gem("opal",
                'Transparent, iridescent, many colors including white, black, blue,'
@@ -128,9 +135,9 @@ if __name__ == "__main__":
     coin4 = Coin(70, 'pp')
     print("Cash as coins created.")
 
-    magic_item_1 = MagicItem(desc_item_1)
-    magic_item_2 = MagicItem(desc_item_2)
-    magic_item_3 = MagicItem(desc_item_3)
+    magic_item_1 = MagicItem(desc_item_1, source_item_1)
+    magic_item_2 = MagicItem(desc_item_2, source_item_2)
+    magic_item_3 = MagicItem(desc_item_3, source_item_3)
     print(f"Magic items: {magic_item_1}, {magic_item_2}, {magic_item_3}")
 
     other_wealth_1 = OtherWealth()
