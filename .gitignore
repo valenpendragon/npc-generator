@@ -6,3 +6,4 @@
 /venv/
 /data/~$tables.xlsx
 /my_data/
+/*/__pycache__/
