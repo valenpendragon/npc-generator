@@ -106,6 +106,25 @@ class Treasure:
                          f"{type(item)}.")
             raise TypeError(error_msg)
 
+    def remove_item(self, index: int):
+        """
+        This method removes a treasure item from the item_list attribute.
+        It included error trapping to prevent IndexError from stopping
+        execution. It will produce an error message. It returns True if
+        the index exists, False otherwise.
+        :param index: int
+        :return: bool
+        """
+        try:
+            item = self.item_list.pop(index)
+        except IndexError:
+            print(f"Treasure.remove_item: The index, {index} is out of "
+                  f"range. The actual max index is {len(self.item_list)}.")
+            return False
+        else:
+            print(f"Treasure.remove_item: item {item} removed from Treasure.")
+            print(f"Treasure.remove_item: Treasure is now {self}.")
+
 
 if __name__ == "__main__":
     desc_item_1 = "+1 Weapon"
@@ -171,6 +190,14 @@ if __name__ == "__main__":
     except TypeError:
         print(f"Treasure can only add items of type Coin, OtherWealth, "
               f"or MagicItem.\n")
+
+    for item in (treasure_1, treasure_2, treasure_3):
+        print(item)
+
+    print(f"main: Testing removal of an item from each treasure object.")
+    treasure_1.remove_item(0)
+    treasure_2.remove_item(1)
+    treasure_3.remove_item(2)
 
     for item in (treasure_1, treasure_2, treasure_3):
         print(item)
