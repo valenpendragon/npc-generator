@@ -99,8 +99,14 @@ class Treasure:
                 isinstance(item, OtherWealth) or
                 isinstance(item, MagicItem)):
             self.item_list.append(item)
+        elif (isinstance(item, Gem) or
+                isinstance(item, Valuable)):
+            error_msg = (f"Treasure.add_item: Gems and Valuable items "
+                         f"must be added to an OtherValuable object "
+                         f"and the latter added to Treasure.")
+            raise TypeError(error_msg)
         else:
-            error_msg = (f"Treasure: Items supplied as arguments "
+            error_msg = (f"Treasure.add_item: Items supplied as arguments "
                          f"to this class must be of type Coin, "
                          f"MagicItem, or OtherWealth, not type, "
                          f"{type(item)}.")
@@ -119,11 +125,48 @@ class Treasure:
             item = self.item_list.pop(index)
         except IndexError:
             print(f"Treasure.remove_item: The index, {index} is out of "
-                  f"range. The actual max index is {len(self.item_list)}.")
+                  f"range. The actual max index is "
+                  f"{len(self.item_list)-1}.")
             return False
         else:
             print(f"Treasure.remove_item: item {item} removed from Treasure.")
             print(f"Treasure.remove_item: Treasure is now {self}.")
+
+    def replace_item(self, index, new_item):
+        """
+        This method replaces a treasure item from the item_list attribute
+        with a new item of Coin, MagicItem, or OtherValuable type.
+        It includes error trapping to prevent IndexError from stopping
+        execution. It will produce an error message instead. This method
+        returns True if the index exists, False otherwise.
+        :param index: int
+        :param new_item: a Coin, MagicItem, or OtherValuable object
+        :return: bool
+        """
+        max_range = len(self.item_list)
+        print(f"Treasure.replace_item: index: {index}. max_range: {max_range}.")
+        if (isinstance(new_item, Coin) or
+                isinstance(new_item, MagicItem) or
+                isinstance(new_item, OtherWealth)):
+            if index >= max_range:
+                print(f"Treasure.replace_item: Index is out of range for "
+                      f"this treasure object. Max index is {max_range - 1}.")
+                return False
+            else:
+                item = self.item_list[index]
+                self.item_list[index] = new_item
+                print(f"Treasure.replace_item: Item {item} has been replaced "
+                      f"with new item {new_item}. Treasure is now: {self}.")
+        elif isinstance(new_item, Gem) or isinstance(new_item, Valuable):
+            error_msg = (f"Treasure.replace_item: Gem and Valuable items "
+                         f"must be added to an OtherValuable and the latter "
+                         f"added to Treasure.")
+            raise TypeError(error_msg)
+        else:
+            error_msg = (f"Treasure.replace_item: Treasure can onl use Coin, "
+                         f"MagicItem, and OtherValuable objects, not "
+                         f"{type(new_item)}.")
+            raise TypeError(error_msg)
 
 
 if __name__ == "__main__":
@@ -198,6 +241,9 @@ if __name__ == "__main__":
     treasure_1.remove_item(0)
     treasure_2.remove_item(1)
     treasure_3.remove_item(2)
+
+    treasure_3.replace_item(2, coin3)
+    treasure_1.replace_item(2, magic_item_1)
 
     for item in (treasure_1, treasure_2, treasure_3):
         print(item)
