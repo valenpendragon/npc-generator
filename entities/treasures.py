@@ -62,6 +62,27 @@ class OtherWealth:
                          f"{type(item)}.")
             raise TypeError(error_msg)
 
+    def delete_item(self, index):
+        """
+        This method deletes a Gem or Valuable item from the item_list attribute
+        using the index of the item. It acts similar to pop, returning the item
+        removed from self.item_list. There is an error trap to prevent removal
+        of a non-existent object from stopping execution.
+        :param index: int
+        :return: Gem, Valuable, or False
+        """
+        max_index = len(self.item_list)
+        if max_index > index:
+            item = self.item_list.pop(index)
+            print(f"OtherWealth.delete_item: Item, {item}, removed from "
+                  f"OtherWealth object at index {index}.")
+            return item
+        else:
+            error_msg = (f"OtherWealth.delete_item: Index is out of range "
+                         f"for this object. max_index is {max_index-1}.")
+            print(error_msg)
+            return False
+
 
 class Treasure:
     """
@@ -247,3 +268,13 @@ if __name__ == "__main__":
 
     for item in (treasure_1, treasure_2, treasure_3):
         print(item)
+
+    print(f"main: Testing removal of Gems and Valuables from OtherWealth "
+          f"objects.")
+    print(f"main: The first test will produce an error message withouth "
+          f"stopping execution.")
+    other_wealth_1.delete_item(2)
+    other_wealth_2.delete_item(0)
+    other_wealth_3.delete_item(1)
+    for item in (other_wealth_1, other_wealth_2, other_wealth_3):
+        print(f"main: {item}")
