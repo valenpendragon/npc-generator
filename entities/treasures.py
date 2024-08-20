@@ -108,18 +108,22 @@ class Treasure:
                     s += f"Cash: {item.number} {item.type}\n"
             return s.replace('\n\n', '\n')
 
-    def add_item(self, item):
+    def add_item(self, item, index=None):
         """
         This method adds an item to Treasure.item_list. The item must
         be of type Coin, MagicItem, or OtherWealth. Any other object
         type will raise a TypeError.
         :param item: object of type Coin, MagicItme, or OtherWealth
+        :param index: int, defaults to None
         :return: None
         """
         if (isinstance(item, Coin) or
                 isinstance(item, OtherWealth) or
                 isinstance(item, MagicItem)):
-            self.item_list.append(item)
+            if index is not None:
+                self.item_list.insert(index, item)
+            else:
+                self.item_list.append(item)
         elif (isinstance(item, Gem) or
                 isinstance(item, Valuable)):
             error_msg = (f"Treasure.add_item: Gems and Valuable items "
@@ -194,9 +198,11 @@ if __name__ == "__main__":
     desc_item_1 = "+1 Weapon"
     desc_item_2 = "healing potion"
     desc_item_3 = "robe of the archmage"
+    desc_item_4 = "magic gumballs"
     source_item_1 = "Book of Weapons 1"
     source_item_2 = "Book of Potions 1"
     source_item_3 = "Book of Armor 10"
+    source_item_4 = "Book of Foods Creating Breath Weapons"
 
     gem1 = Gem("opal",
                'Transparent, iridescent, many colors including white, black, blue,'
@@ -216,12 +222,15 @@ if __name__ == "__main__":
     coin2 = Coin(400, 'sp')
     coin3 = Coin(150, 'gp')
     coin4 = Coin(70, 'pp')
+    coin5 = Coin(45, "gp")
     print("Cash as coins created.")
 
     magic_item_1 = MagicItem(desc_item_1, source_item_1)
     magic_item_2 = MagicItem(desc_item_2, source_item_2)
     magic_item_3 = MagicItem(desc_item_3, source_item_3)
-    print(f"Magic items: {magic_item_1}, {magic_item_2}, {magic_item_3}")
+    magic_item_4 = MagicItem(desc_item_4, source_item_4)
+    print(f"Magic items: {magic_item_1}, {magic_item_2}, {magic_item_3}, "
+          f"{magic_item_4}.")
 
     other_wealth_1 = OtherWealth()
     other_wealth_1.add_item(gem1)
@@ -258,11 +267,21 @@ if __name__ == "__main__":
     for item in (treasure_1, treasure_2, treasure_3):
         print(item)
 
+    print(f"main: Testing Treasure.add_item with index argument.")
+    treasure_1.add_item(magic_item_4, 1)
+    treasure_3.add_item(magic_item_4, index=0)
+    for item in (treasure_1, treasure_2, treasure_3):
+        print(item)
+
     print(f"main: Testing removal of an item from each treasure object.")
     treasure_1.remove_item(0)
     treasure_2.remove_item(1)
     treasure_3.remove_item(2)
 
+    for item in (treasure_1, treasure_2, treasure_3):
+        print(item)
+
+    print(f"main: Testing Treasure.replace_item.")
     treasure_3.replace_item(2, coin3)
     treasure_1.replace_item(2, magic_item_1)
 
