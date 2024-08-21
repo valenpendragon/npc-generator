@@ -48,14 +48,33 @@ class OtherWealth:
                       f"value: {item.value}\n")
         return s
 
-    def add_item(self, item):
+    def add_item(self, item, index=None):
         """
         This method adds an item to OtherWealth.item_list. The item must be either a
-        Gem or Valuable object, otherwise a TypeError will be raised.
+        Gem or Valuable object, otherwise a TypeError will be raised. The optional
+        index argument allows the item to be inserted into specific slot in
+        OtherWealth. If this is larger than max_index, it will add it to the end
+        and print an error message.
+        :param item: Gem or Valuable
+        :param index: int or None
         :return: None
         """
+        max_index = len(self.item_list) - 1
+        if index is not None and index > max_index:
+            index = None
+            error_msg = (f"OtherWealth.add_item: Index was beyond the range of "
+                         f"the OtherWealth object. Adding to the end of the list "
+                         f"instead.")
+            print(error_msg)
         if isinstance(item, Gem) or isinstance(item, Valuable):
-            self.item_list.append(item)
+            if index is not None:
+                self.item_list.insert(index, item)
+                msg = (f"OtherWealth: Inserted item {item} into index "
+                       f"{index}.")
+            else:
+                self.item_list.append(item)
+                msg = f"OtherWealth: Added item {item} to end of list."
+            print(msg)
         else:
             error_msg = (f"OtherWealth.add_item: Only items of type Gem or Valuable "
                          f"may added to OtherWealth objects. items is type "
@@ -124,6 +143,7 @@ class Treasure:
                 self.item_list.insert(index, item)
             else:
                 self.item_list.append(item)
+
         elif (isinstance(item, Gem) or
                 isinstance(item, Valuable)):
             error_msg = (f"Treasure.add_item: Gems and Valuable items "
@@ -199,10 +219,12 @@ if __name__ == "__main__":
     desc_item_2 = "healing potion"
     desc_item_3 = "robe of the archmage"
     desc_item_4 = "magic gumballs"
+    desc_item_5 = "helm of public insanity"
     source_item_1 = "Book of Weapons 1"
     source_item_2 = "Book of Potions 1"
     source_item_3 = "Book of Armor 10"
     source_item_4 = "Book of Foods Creating Breath Weapons"
+    source_item_5 = "Book of Cursed Weapons and Armor"
 
     gem1 = Gem("opal",
                'Transparent, iridescent, many colors including white, black, blue,'
@@ -210,7 +232,8 @@ if __name__ == "__main__":
     gem2 = Gem("diamond",
                "Transparent and clear (the most prized diamonds have no visible "
                "inclusions or flaws)", 5000)
-    gem3 = Gem("jade", "Translucent green", 100)
+    gem3 = Gem("amethyst", "Perfect stone without inclusions", 4500)
+    gem4 = Gem("jade", "Translucent green", 100)
     print("Gems created.")
     valuable1 = Valuable("necklace", "Ruby pendant or string of pearls", 2500)
     valuable2 = Valuable("statuary", "Marble bust or small silver idol", 250)
@@ -290,10 +313,17 @@ if __name__ == "__main__":
 
     print(f"main: Testing removal of Gems and Valuables from OtherWealth "
           f"objects.")
-    print(f"main: The first test will produce an error message withouth "
+    print(f"main: The first test will produce an error message without "
           f"stopping execution.")
     other_wealth_1.delete_item(2)
     other_wealth_2.delete_item(0)
     other_wealth_3.delete_item(1)
+    for item in (other_wealth_1, other_wealth_2, other_wealth_3):
+        print(f"main: {item}")
+
+    print(f"main: Testing OtherWealth.add_item with index argument.")
+    other_wealth_1.add_item(gem4, index=3)
+    other_wealth_2.add_item(gem4, index=0)
+    other_wealth_3.add_item(gem4, index=1)
     for item in (other_wealth_1, other_wealth_2, other_wealth_3):
         print(f"main: {item}")
