@@ -81,6 +81,33 @@ class OtherWealth:
                          f"{type(item)}.")
             raise TypeError(error_msg)
 
+    def replace_item(self, item, index: int):
+        """
+        This method takes a Gem or Valuable and an index. It uses the index to
+        remove item using OtherWealth.delete_item(), then uses
+        OtherWealth.add_item(item, index) to insert the replacement into the
+        correct index. If successful, it returns True, False otherwise.
+        :param item: Gen or Valuable
+        :param index: int
+        :return: bool
+        """
+        max_index = len(self.item_list) - 1
+        if index > max_index:
+            error_msg = (f"OtherWealth.replace_item: Index was beyond the range of "
+                         f"the OtherWealth object. Cannot continue. IndexError "
+                         f"trapped.")
+            print(error_msg)
+            return False
+        if not(isinstance(item, Gem) or isinstance(item, Valuable)):
+            error_msg = (f"OtherWealth.replace_item: item must be of type Gem or "
+                         f"type Valuable. Instead it is type {type(item)}, which"
+                         f"cannot be added to OtherWealth objects. TypeError "
+                         f"trapped.")
+            print(error_msg)
+            return False
+        self.delete_item(index)
+        self.add_item(item, index)
+
     def delete_item(self, index):
         """
         This method deletes a Gem or Valuable item from the item_list attribute
@@ -240,6 +267,9 @@ if __name__ == "__main__":
     valuable3 = Valuable('earrings',
                          "Dangling platinum earrings or white and black pearl pendants",
                          750)
+    valuable4 = Valuable("bracelet",
+                         "diamond-studded bracelet",
+                         500)
     print('Valuables created.')
     coin1 = Coin(350, 'cp')
     coin2 = Coin(400, 'sp')
@@ -311,19 +341,27 @@ if __name__ == "__main__":
     for item in (treasure_1, treasure_2, treasure_3):
         print(item)
 
-    print(f"main: Testing removal of Gems and Valuables from OtherWealth "
-          f"objects.")
-    print(f"main: The first test will produce an error message without "
-          f"stopping execution.")
-    other_wealth_1.delete_item(2)
-    other_wealth_2.delete_item(0)
-    other_wealth_3.delete_item(1)
-    for item in (other_wealth_1, other_wealth_2, other_wealth_3):
-        print(f"main: {item}")
 
     print(f"main: Testing OtherWealth.add_item with index argument.")
     other_wealth_1.add_item(gem4, index=3)
     other_wealth_2.add_item(gem4, index=0)
     other_wealth_3.add_item(gem4, index=1)
+    for item in (other_wealth_1, other_wealth_2, other_wealth_3):
+        print(f"main: {item}")
+
+    print(f"main: Testing OtherWealth.replace_item.")
+    other_wealth_1.replace_item(valuable4, 3)
+    other_wealth_2.replace_item(valuable4, index=1)
+    other_wealth_3.replace_item(valuable4, index=2)
+    for item in (other_wealth_1, other_wealth_2, other_wealth_3):
+        print(f"main: {item}")
+
+    print(f"main: Testing removal of Gems and Valuables from OtherWealth "
+          f"objects.")
+    print(f"main: The first test will produce an error message without "
+          f"stopping execution.")
+    other_wealth_1.delete_item(3)
+    other_wealth_2.delete_item(0)
+    other_wealth_3.delete_item(1)
     for item in (other_wealth_1, other_wealth_2, other_wealth_3):
         print(f"main: {item}")
