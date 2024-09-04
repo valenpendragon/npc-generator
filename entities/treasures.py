@@ -35,6 +35,10 @@ class OtherWealth:
     """
     def __init__(self):
         self.item_list = []
+        self.max_index = 0
+
+    def __len__(self):
+        return len(self.item_list)
 
     def __str__(self):
         s = "Other Valuables:\n"
@@ -59,8 +63,7 @@ class OtherWealth:
         :param index: int or None
         :return: None
         """
-        max_index = len(self.item_list) - 1
-        if index is not None and index > max_index:
+        if index is not None and index > self.max_index:
             index = None
             error_msg = (f"OtherWealth.add_item: Index was beyond the range of "
                          f"the OtherWealth object. Adding to the end of the list "
@@ -81,6 +84,8 @@ class OtherWealth:
                          f"{type(item)}.")
             raise TypeError(error_msg)
 
+        self.max_index = self.__len__() - 1
+
     def replace_item(self, item, index: int):
         """
         This method takes a Gem or Valuable and an index. It uses the index to
@@ -91,8 +96,7 @@ class OtherWealth:
         :param index: int
         :return: bool
         """
-        max_index = len(self.item_list) - 1
-        if index > max_index:
+        if index > self.max_index:
             error_msg = (f"OtherWealth.replace_item: Index was beyond the range of "
                          f"the OtherWealth object. Cannot continue. IndexError "
                          f"trapped.")
@@ -107,6 +111,7 @@ class OtherWealth:
             return False
         self.delete_item(index)
         self.add_item(item, index)
+        self.max_index = self.__len__() - 1
 
     def delete_item(self, index):
         """
@@ -117,15 +122,15 @@ class OtherWealth:
         :param index: int
         :return: Gem, Valuable, or False
         """
-        max_index = len(self.item_list)
-        if max_index > index:
+        if self.max_index > index:
             item = self.item_list.pop(index)
             print(f"OtherWealth.delete_item: Item, {item}, removed from "
                   f"OtherWealth object at index {index}.")
+            self.max_index = self.__len__() - 1
             return item
         else:
             error_msg = (f"OtherWealth.delete_item: Index is out of range "
-                         f"for this object. max_index is {max_index-1}.")
+                         f"for this object. max_index is {self.max_index}.")
             print(error_msg)
             return False
 
@@ -140,6 +145,16 @@ class Treasure:
         self.item_list = []
         for item in args:
             self.add_item(item)
+        self.max_index = len(self.item_list) - 1
+
+    def __len__(self):
+        ctr = 0
+        for item in self.item_list:
+            if isinstance(item, OtherWealth):
+                ctr += len(item)
+            else:
+                ctr += 1
+        return ctr
 
     def __str__(self):
         if len(self.item_list) == 0:
@@ -184,6 +199,8 @@ class Treasure:
                          f"{type(item)}.")
             raise TypeError(error_msg)
 
+        self.max_index = len(self.item_list) - 1
+
     def remove_item(self, index: int):
         """
         This method removes a treasure item from the item_list attribute.
@@ -203,6 +220,7 @@ class Treasure:
         else:
             print(f"Treasure.remove_item: item {item} removed from Treasure.")
             print(f"Treasure.remove_item: Treasure is now {self}.")
+        self.max_index = len(self.item_list) - 1
 
     def replace_item(self, index, new_item):
         """
@@ -239,6 +257,8 @@ class Treasure:
                          f"MagicItem, and OtherValuable objects, not "
                          f"{type(new_item)}.")
             raise TypeError(error_msg)
+
+        self.max_index = len(self.item_list) - 1
 
 
 if __name__ == "__main__":
@@ -302,7 +322,8 @@ if __name__ == "__main__":
               f" Gem or Valuable.\n")
 
     for item in (other_wealth_1, other_wealth_2, other_wealth_3):
-        print(item)
+        print(f"main: OtherWealth: {item}.")
+        print(f"main: Length of OtherWealth: {len(item)}.")
 
     treasure_1 = Treasure(magic_item_1, other_wealth_1, coin1)
     treasure_2 = Treasure(magic_item_2, other_wealth_2, coin2)
@@ -318,13 +339,15 @@ if __name__ == "__main__":
               f"or MagicItem.\n")
 
     for item in (treasure_1, treasure_2, treasure_3):
-        print(item)
+        print(f"main: {item}")
+        print(f"main: Length of Treasure: {len(item)}")
 
     print(f"main: Testing Treasure.add_item with index argument.")
     treasure_1.add_item(magic_item_4, 1)
     treasure_3.add_item(magic_item_4, index=0)
     for item in (treasure_1, treasure_2, treasure_3):
-        print(item)
+        print(f"main: {item}")
+        print(f"main: Length of Treasure: {len(item)}")
 
     print(f"main: Testing removal of an item from each treasure object.")
     treasure_1.remove_item(0)
@@ -332,15 +355,16 @@ if __name__ == "__main__":
     treasure_3.remove_item(2)
 
     for item in (treasure_1, treasure_2, treasure_3):
-        print(item)
+        print(f"main: {item}")
+        print(f"main: Length of Treasure: {len(item)}")
 
     print(f"main: Testing Treasure.replace_item.")
     treasure_3.replace_item(2, coin3)
     treasure_1.replace_item(2, magic_item_1)
 
     for item in (treasure_1, treasure_2, treasure_3):
-        print(item)
-
+        print(f"main: {item}")
+        print(f"main: Length of Treasure: {len(item)}")
 
     print(f"main: Testing OtherWealth.add_item with index argument.")
     other_wealth_1.add_item(gem4, index=3)
@@ -348,6 +372,7 @@ if __name__ == "__main__":
     other_wealth_3.add_item(gem4, index=1)
     for item in (other_wealth_1, other_wealth_2, other_wealth_3):
         print(f"main: {item}")
+        print(f"main: Length of OtherWealth: {len(item)}")
 
     print(f"main: Testing OtherWealth.replace_item.")
     other_wealth_1.replace_item(valuable4, 3)
@@ -355,6 +380,7 @@ if __name__ == "__main__":
     other_wealth_3.replace_item(valuable4, index=2)
     for item in (other_wealth_1, other_wealth_2, other_wealth_3):
         print(f"main: {item}")
+        print(f"main: Length of OtherWealth: {len(item)}")
 
     print(f"main: Testing removal of Gems and Valuables from OtherWealth "
           f"objects.")
@@ -365,3 +391,4 @@ if __name__ == "__main__":
     other_wealth_3.delete_item(1)
     for item in (other_wealth_1, other_wealth_2, other_wealth_3):
         print(f"main: {item}")
+        print(f"main: Length of OtherWealth: {len(item)}")
