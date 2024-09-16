@@ -174,17 +174,31 @@ class Treasure:
         This method adds an item to Treasure.item_list. The item must
         be of type Coin, MagicItem, or OtherWealth. Any other object
         type will raise a TypeError.
+        if the item to be added is at an index out of range, this
+        method traps that error, prints a message about the error,
+        and adds the item to the end of self.item_list.
         :param item: object of type Coin, MagicItme, or OtherWealth
         :param index: int, defaults to None
         :return: None
         """
+        if index is not None and index > self.max_index:
+            index = None
+            error_msg = (f"Treasure.add_item: Index, {index}, is out "
+                         f"of range. Adding item to end of self.item_list "
+                         f"instead.")
+            print(error_msg)
         if (isinstance(item, Coin) or
                 isinstance(item, OtherWealth) or
                 isinstance(item, MagicItem)):
             if index is not None:
                 self.item_list.insert(index, item)
+                msg = (f"Treasure.add_item: Inserted item {item} into "
+                       f"index, {index}.")
             else:
                 self.item_list.append(item)
+                msg = (f"Treasure.add_item: Added item {item} to the "
+                       f"end of the list.")
+            print(msg)
 
         elif (isinstance(item, Gem) or
                 isinstance(item, Valuable)):
