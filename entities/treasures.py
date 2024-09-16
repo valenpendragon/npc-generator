@@ -64,10 +64,10 @@ class OtherWealth:
         :return: None
         """
         if index is not None and index > self.max_index:
-            index = None
-            error_msg = (f"OtherWealth.add_item: Index was beyond the range of "
-                         f"the OtherWealth object. Adding to the end of the list "
+            error_msg = (f"OtherWealth.add_item: Index, {index} is out of range, "
+                         f"{self.max_index}. Adding to the end of the list "
                          f"instead.")
+            index = None
             print(error_msg)
         if isinstance(item, Gem) or isinstance(item, Valuable):
             if index is not None:
@@ -122,7 +122,7 @@ class OtherWealth:
         :param index: int
         :return: Gem, Valuable, or False
         """
-        if self.max_index > index:
+        if self.max_index >= index:
             item = self.item_list.pop(index)
             print(f"OtherWealth.delete_item: Item, {item}, removed from "
                   f"OtherWealth object at index {index}.")
@@ -182,10 +182,10 @@ class Treasure:
         :return: None
         """
         if index is not None and index > self.max_index:
-            index = None
             error_msg = (f"Treasure.add_item: Index, {index}, is out "
-                         f"of range. Adding item to end of self.item_list "
-                         f"instead.")
+                         f"of range {self.max_index}. Adding item to end of "
+                         f"list instead.")
+            index = None
             print(error_msg)
         if (isinstance(item, Coin) or
                 isinstance(item, OtherWealth) or
@@ -224,7 +224,7 @@ class Treasure:
         :param index: int
         :return: Coin, MagicItem, OtherWealth, or False
         """
-        if self.max_index > index:
+        if self.max_index >= index:
             item = self.item_list.pop(index)
             print(f"Treasure.remove_item: The item, {item}, at index, {index},"
                   f"has been removed.")
@@ -236,42 +236,43 @@ class Treasure:
             print(error_msg)
             return False
 
-    def replace_item(self, index, new_item):
+    def replace_item(self, new_item, index: int):
         """
-        This method replaces a treasure item from the item_list attribute
+        This method replaces a treasure item in the item_list attribute
         with a new item of Coin, MagicItem, or OtherValuable type.
-        It includes error trapping to prevent IndexError from stopping
-        execution. It will produce an error message instead. This method
+        It includes error trapping to prevent an IndexError from stopping
+        execution. It will print an error message instead. This method
         returns True if the index exists, False otherwise.
         :param index: int
         :param new_item: a Coin, MagicItem, or OtherValuable object
         :return: bool
         """
-        max_range = len(self.item_list)
-        print(f"Treasure.replace_item: index: {index}. max_range: {max_range}.")
-        if (isinstance(new_item, Coin) or
+        if index > self.max_index:
+            error_msg = (f"Treasure.replace_item: Index is out of range for "
+                         f"this treasure object. Cannot continue. IndexError "
+                         f"trapped.")
+            print(error_msg)
+            return False
+
+        if not (isinstance(new_item, Coin) or
                 isinstance(new_item, MagicItem) or
-                isinstance(new_item, OtherWealth)):
-            if index >= max_range:
-                print(f"Treasure.replace_item: Index is out of range for "
-                      f"this treasure object. Max index is {max_range - 1}.")
-                return False
-            else:
-                item = self.item_list[index]
-                self.item_list[index] = new_item
-                print(f"Treasure.replace_item: Item {item} has been replaced "
-                      f"with new item {new_item}. Treasure is now: {self}.")
+                isinstance(new_item, OtherWealth) or
+                isinstance(new_item, Gem) or
+                isinstance(new_item, Valuable)):
+            error_msg = (f"Treasure.replace_item: Treasure can only use Coin, "
+                         f"MagicItem, and OtherValuable objects, not "
+                         f"{type(new_item)}.")
+            print(error_msg)
+            return False
         elif isinstance(new_item, Gem) or isinstance(new_item, Valuable):
             error_msg = (f"Treasure.replace_item: Gem and Valuable items "
                          f"must be added to an OtherValuable and the latter "
                          f"added to Treasure.")
-            raise TypeError(error_msg)
-        else:
-            error_msg = (f"Treasure.replace_item: Treasure can onl use Coin, "
-                         f"MagicItem, and OtherValuable objects, not "
-                         f"{type(new_item)}.")
-            raise TypeError(error_msg)
+            print(error_msg)
+            return False
 
+        self.remove_item(index)
+        self.add_item(new_item, index)
         self.max_index = len(self.item_list) - 1
 
 
@@ -354,31 +355,35 @@ if __name__ == "__main__":
 
     for item in (treasure_1, treasure_2, treasure_3):
         print(f"main: {item}")
-        print(f"main: Length of Treasure: {len(item)}.\n")
+        print(f"main: Length of Treasure: {len(item)}. max_index: "
+              f"{item.max_index}.\n")
 
-    print(f"main: Testing Treasure.add_item with index argument.")
+    print(f"\nmain: Testing Treasure.add_item with index argument.\n")
     treasure_1.add_item(magic_item_4, 1)
     treasure_3.add_item(magic_item_4, index=0)
     for item in (treasure_1, treasure_2, treasure_3):
         print(f"main: {item}")
-        print(f"main: Length of Treasure: {len(item)}.\n")
+        print(f"main: Length of Treasure: {len(item)}. max_index: "
+              f"{item.max_index}.\n")
 
-    print(f"main: Testing removal of an item from each treasure object.")
+    print(f"\nmain: Testing removal of an item from each treasure object.\n")
     treasure_1.remove_item(0)
     treasure_2.remove_item(1)
     treasure_3.remove_item(2)
 
     for item in (treasure_1, treasure_2, treasure_3):
         print(f"main: {item}")
-        print(f"main: Length of Treasure: {len(item)}.\n")
+        print(f"main: Length of Treasure: {len(item)}. max_index: "
+              f"{item.max_index}.\n")
 
-    print(f"main: Testing Treasure.replace_item.")
-    treasure_3.replace_item(2, coin3)
-    treasure_1.replace_item(2, magic_item_1)
+    print(f"\nmain: Testing Treasure.replace_item.\n")
+    treasure_3.replace_item(coin3, 2)
+    treasure_1.replace_item(magic_item_1, 2)
 
     for item in (treasure_1, treasure_2, treasure_3):
         print(f"main: {item}")
-        print(f"main: Length of Treasure: {len(item)}.\n")
+        print(f"main: Length of Treasure: {len(item)}. max_index: "
+              f"{item.max_index}.\n")
 
     print(f"main: Testing OtherWealth.add_item with index argument.")
     other_wealth_1.add_item(gem4, index=3)
