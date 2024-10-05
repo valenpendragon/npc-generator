@@ -260,7 +260,6 @@ class TreasureWindow(QMainWindow):
                     output_text += f"{item}"
                 else: # item isinstance(item, OtherValuable):
                     for sub_idx, subitem in enumerate(item.item_list):
-                        output_text += "\t"
                         if isinstance(subitem, Gem):
                             output_text += (f"Gem: {subitem.type}. "
                                             f"Description: {subitem.description}. "
