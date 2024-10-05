@@ -122,8 +122,12 @@ class TreasureWindow(QMainWindow):
         self.statusbar.addWidget(self.generate_treasure_button)
         self.generate_treasure_button.clicked.connect(self.generate_treasure)
 
-        # Add Generate Treasure button, Close button, and Exit button to statusBar.
-        self.statusbar.addWidget(self.generate_treasure_button)
+        # Add reroll treasure single item button.
+        self.reroll_item_button = QPushButton("Reroll Item")
+        self.statusbar.addWidget(self.reroll_item_button)
+        self.reroll_item_button.clicked.connect(self.reroll_item)
+
+        # Add Close button and Exit button to statusBar.
         self.statusbar.addWidget(close_button)
         self.statusbar.addWidget(exit_button)
         self.statusbar.addWidget(self.status_msg)
@@ -148,6 +152,10 @@ class TreasureWindow(QMainWindow):
         self.encounter_challenge_rating = str(self.cr_dropdown.currentText())
         print(f"TreasureWindow.init_ui: encounter_challenge_rating: "
               f"{self.encounter_challenge_rating}")
+
+    def reroll_item(self):
+        update_txt = f"Reroll Item pressed."
+        self.status_msg.setText(update_txt)
 
     def generate_treasure(self):
         print(f"TreasureWindow.generate_treasure: _use_cr_mode: "
@@ -240,6 +248,8 @@ class TreasureWindow(QMainWindow):
         print(f"TreasureWindow.generate_treasure: Other Valuables completed.")
         print(f"TreasureWindow.generate_treasure: treasure: {self.treasure}.")
         self.print_treasure()
+        update_txt = "New Treasure generated."
+        self.status_msg.setText(update_txt)
 
     def print_treasure(self):
         """
