@@ -50,8 +50,11 @@ class TreasureWindow(QMainWindow):
         # Set up internal variables.
         self._use_cr_mode = True
 
-        # Initialize the grig.
+        # Initialize the grid.
         self.grid = None
+
+        # Create attribute to store TreasureEditWindow object.
+        self.edit_window = None
 
         # Run init_ui.
         self.init_ui()
@@ -156,6 +159,7 @@ class TreasureWindow(QMainWindow):
     def reroll_item(self):
         update_txt = f"Reroll Item pressed."
         self.status_msg.setText(update_txt)
+        self.edit_window = TreasureEditWindow('reroll')
 
     def generate_treasure(self):
         print(f"TreasureWindow.generate_treasure: _use_cr_mode: "
@@ -853,6 +857,21 @@ class TreasureWindow(QMainWindow):
             self.exit_app()
         else:
             return correct_ws
+
+
+class TreasureEditWindow(QWidget):
+    def __init__(self, window_type):
+        print(f"TreasureEditWindow: Starting TreasureEditWindow.")
+        super().__init__()
+        self.window_type = window_type
+        self.item_no = None
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Treasure Edit Window")
+        self.setMinimumSize(100, 200)
+        self.grid = QGridLayout()
+        self.show()
 
 
 if __name__ == "__main__":

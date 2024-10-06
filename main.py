@@ -1,3 +1,10 @@
+import sys
+import json
+import os
+import pandas as pd
+import numpy as np
+import openpyxl
+
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
                                QMessageBox, QApplication, QMainWindow, QStatusBar,
                                QLabel, QHBoxLayout)
@@ -5,12 +12,6 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QPushButton, QFileDialog,
 from classes import TreasureWindow
 from functions import (find_workbooks, check_workbook, check_worksheet,
                        fix_worksheet)
-import sys
-import json
-import os
-import pandas as pd
-import numpy as np
-import openpyxl
 
 DATA_DIRECTORY = 'my_data'
 CONDITIONS = f'{DATA_DIRECTORY}/conditions.json'
