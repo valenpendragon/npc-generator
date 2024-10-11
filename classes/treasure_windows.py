@@ -264,7 +264,14 @@ class TreasureWindow(QMainWindow):
         if self.treasure is None:
             self.treasure_display.append(f"<p>No treasure of any kind was generated.</p>")
         else:
-            self.treasure_display.append(f"<p><b>Generated treasure is: </b></p>")
+            if self._use_cr_mode:
+                self.treasure_display.append(f"<p><b>Generated treasure for "
+                                             f"CR {self.encounter_challenge_rating} "
+                                             f"is: </b></p>")
+            else:
+                self.treasure_display.append(f"<p><b>This methodology has not "
+                                             f"been implemented yet.</b><p>")
+                return
             for idx, item in enumerate(self.treasure.item_list):
                 # We have to construct the output text.
                 output_text = f"Item #{idx+1}: "
