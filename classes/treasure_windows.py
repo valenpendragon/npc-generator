@@ -884,13 +884,44 @@ class TreasureEditWindow(QWidget):
         super().__init__()
         self.window_type = window_type
         self.item_no = None
+        self.grid = None
+
+        # Setup statusbar.
+        self.statusbar = QStatusBar()
+        self.status_msg = None
         self.init_ui()
+        print(f"TreasureEditWindow.__init__: Completed TreasureEditWindow.__init__().")
 
     def init_ui(self):
         self.setWindowTitle("Treasure Edit Window")
         self.setMinimumSize(100, 200)
         self.grid = QGridLayout()
+
+        # Create close and exit buttons.
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.close)
+        exit_button = QPushButton("Exit")
+        exit_button.clicked.connect(self.exit_app)
+
+        # Adding close button, exit button, and status_msg to statusbar.
+        # Placing statusbar at the bottom of the grid.
+        self.status_msg = QLabel()
+        self.statusbar.addWidget(close_button)
+        self.statusbar.addWidget(exit_button)
+        self.grid.addWidget(self.statusbar, 3, 2)
+        update_txt = f"Treasure Editing Enabled."
+        self.setLayout(self.grid)
+        self.status_msg.setText(update_txt)
+
+        # Make the new window appear.
         self.show()
+        print(f"TreasureEditWindow.init_ui: Completed TreasureEditWindow.init_ui().")
+
+
+
+    @staticmethod
+    def exit_app(self):
+        sys.exit()
 
 
 if __name__ == "__main__":
