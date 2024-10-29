@@ -502,10 +502,22 @@ class TreasureWindow(QMainWindow):
         for item in magic_list:
             item = item.rstrip()
             print(f"TreasureWindow._parse_magic_items: item: {item}.")
-
             item = item.lower().replace('.', '').replace(':', '')
-            roll_idx = item.index("r") - 1
-            rolls.append(item[:roll_idx])
+            print(f"TreasureWindow._parse_magic_items: item: {item}.")
+
+            # Bug fix: Some tables many specify the number of rolls instead using a die
+            # roll to generate a number. It causes a ValueError unless trapped properly.
+            try:
+                roll_idx = item.index("r") - 1
+            except ValueError:
+                # There is only a number or an implied "1" roll.
+                if item[0].isdigit():
+                    n = int(item[0])
+                    rolls.append(n)
+                else:
+                    rolls.append(1)
+            else:
+                rolls.append(item[:roll_idx])
             num_idx = item.index('#') + 1
             tables.append(int(item[num_idx:]))
         print(f"TreasureWindow._parse_magic_items: rolls: {rolls}. tables: {tables}.")
