@@ -894,7 +894,7 @@ class TreasureEditWindow(QWidget):
 
     def init_ui(self):
         self.setWindowTitle("Treasure Edit Window")
-        self.setMinimumSize(100, 200)
+        self.setMinimumSize(400, 300)
         self.grid = QGridLayout()
 
         # Create close and exit buttons.
@@ -908,10 +908,12 @@ class TreasureEditWindow(QWidget):
         self.status_msg = QLabel()
         self.statusbar.addWidget(close_button)
         self.statusbar.addWidget(exit_button)
-        self.grid.addWidget(self.statusbar, 3, 2)
+        self.statusbar.addWidget(self.status_msg)
+        self.grid.addWidget(self.statusbar, 6, 0)
         update_txt = f"Treasure Editing Enabled."
         self.setLayout(self.grid)
         self.status_msg.setText(update_txt)
+        self.status_msg.setVisible(True)
 
         # Make the new window appear.
         self.show()
